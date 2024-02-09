@@ -36,7 +36,7 @@ class SQL:
         
         __C.execute(f"INSERT INTO {table} VALUES ({values})")
         self.connection.commit()
-        self.Refresh()
+        #self.Refresh()
     def PrintAll(self, table):
         __C = self.connection.cursor()
         __C.execute(f"select * from " + table)
@@ -44,17 +44,23 @@ class SQL:
             print(x)
     def SelectIfIn(self, table, column, data):
         __C = self.connection.cursor()
-        print(f"select 1 from {table} where {column} = '{data}'")
+        #print(f"select 1 from {table} where {column} = '{data}'")
         __C.execute(f"select 1 from {table} where {column} = '{data}'")#
         #select 1 from FinancialDisclosure where DocID = '8135688'
-        print(__C.fetchone())
+        _T_ =  __C.fetchone()
         self.Refresh()
+        try:
+            _T_[0]
+        except:
+            return 0
+        else:
+            return _T_[0]
     def Close(self):
         self.connection.close() 
     def Query(self, string):
         __C = self.connection.cursor()
         __C.execute(string)
-        print(__C.fetchall())
+        return __C.fetchall()
 class FinanceDisclosure:
     def __init__(self) -> None:
         self.FirstYear = 2008
@@ -94,11 +100,18 @@ class FinanceDisclosure:
     def printZipFiles(self, zip): 
         for x in self.getZipFiles(zip):
             print(x)
+    @staticmethod
+    def CleanMember(StringDict):
+        for x in StringDict:
+            try:
+                StringDict[x] = StringDict[x].replace('"','').replace("'",'')
+            except:
+                pass
 
 
     def Run(self):
-        self.DB.ClearDB()
-        self.DB.CreateTables()
+        #self.DB.ClearDB()
+        #self.DB.CreateTables()
         for URL in self.URLS:
  
             BYTE = self.Downloadfile(URL).content
@@ -111,21 +124,24 @@ class FinanceDisclosure:
             if FILENAME:
                 data = self.ReadzipFile(ZIP,FILENAME )
                 dict = xmltodict.parse(data)
-                
+                DoesExist = []
+                for x in self.DB.Query('Select Distinct DocId from FinancialDisclosure'):
+                    DoesExist.append(x[0])
+                #print(DoesExist)
                 Members = dict['FinancialDisclosure']['Member']
                 for Member in Members:
-                    self.DB.SelectIfIn('FinancialDisclosure', 'DocID', str(Member['DocID']))
-                    self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
-                    #self.DB.Insert('movie', f"'tt','tt','tt'")
-                    # print(x)
-                    pass
-
-            break
-
+                    
+                    if Member['DocID'] not in DoesExist:
+                        
+                        self.CleanMember(Member)
+                        #print(Member)
+                        self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
         #DB.PrintAllTables()
 
 
-#SQL(sqlite3.connect("HouseStockTrades.db")).PrintAll('FinancialDisclosure')
-#SQL("HouseStockTrades.db").Query("select 1 from FinancialDisclosure where DocID = '8216053'")
+#SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
+#SQL("HouseStockTrades.db").ClearDB()
+#SQL("HouseStockTrades.db").CreateTables()
+#print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
 FC = FinanceDisclosure()
 
