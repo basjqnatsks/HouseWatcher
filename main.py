@@ -60,6 +60,7 @@ class SQL:
     def Query(self, string):
         __C = self.connection.cursor()
         __C.execute(string)
+        self.connection.commit()
         return __C.fetchall()
 class FinanceDisclosure:
     def __init__(self) -> None:
@@ -78,9 +79,15 @@ class FinanceDisclosure:
         return f'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/{str(Year)}FD.zip'
     def GenerateURLS(self):
         #print( self.CurrentYear)
-        for year in range(self.FirstYear, self.CurrentYear):
-            #print(x)
-            self.URLS.append(self.Url(year))
+        DoesExist = []
+        for x in self.DB.Query('select distinct year from FinancialDisclosure'):
+            DoesExist.append(x[0])
+        print(DoesExist)
+        for year in range(self.FirstYear, self.CurrentYear+1):
+            #print(self.CurrentYear-2)
+            if str(year) not in DoesExist or year > self.CurrentYear-2:
+                print(year)
+                self.URLS.append(self.Url(year))
         #print(self.URLS)
 
 
@@ -142,6 +149,83 @@ class FinanceDisclosure:
 #SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
 #SQL("HouseStockTrades.db").ClearDB()
 #SQL("HouseStockTrades.db").CreateTables()
-#print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
+
+#print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
+print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
 FC = FinanceDisclosure()
 
+
+
+
+class Transactions:
+    def __init__(self) -> None:
+        self.FirstYear = 2008
+        self.CurrentYear = int(datetime.date.today().year)
+        self.URLS = []
+        self.DB = SQL("HouseStockTrades.db")
+
+        self.GenerateURLS()
+
+
+        self.Run()
+        self.DB.Close()
+    @staticmethod
+    def Url(Year: int) -> str:
+        return f'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/{str(Year)}FD.zip'
+    def GenerateURLS(self):
+        #print( self.CurrentYear)
+        DoesExist = []
+        for x in self.DB.Query('select distinct FilingId from Transactions'):
+            DoesExist.append(x[0])
+
+
+        AllDocs = []
+        for x in self.DB.Query('select distinct DocID from FinancialDisclosure'):
+            AllDocs.append(x[0])
+
+
+        
+        for Doc in range(len(AllDocs)):
+            #print(self.CurrentYear-2)
+
+    
+                self.URLS.append(self.Url(year))
+        #print(self.URLS)
+
+
+    @staticmethod
+    def Downloadfile(URL):
+        return requests.get(URL)
+    @staticmethod
+    def UnzipBytes(byte):
+        myzip = ZipFile(BytesIO(byte))
+        return myzip
+    @staticmethod
+    def ReadzipFile(zip, filename):
+        return zip.open(filename).read()
+    @staticmethod
+    def getZipFiles(zip):  
+        return  zip.namelist()
+    def printZipFiles(self, zip): 
+        for x in self.getZipFiles(zip):
+            print(x)
+    @staticmethod
+    def CleanMember(StringDict):
+        for x in StringDict:
+            try:
+                StringDict[x] = StringDict[x].replace('"','').replace("'",'')
+            except:
+                pass
+
+
+    def Run(self):
+
+
+
+#SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
+#SQL("HouseStockTrades.db").ClearDB()
+#SQL("HouseStockTrades.db").CreateTables()
+
+#print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
+print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
+FC = FinanceDisclosure()
