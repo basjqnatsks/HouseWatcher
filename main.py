@@ -151,8 +151,8 @@ class FinanceDisclosure:
 #SQL("HouseStockTrades.db").CreateTables()
 
 #print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
-print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
-FC = FinanceDisclosure()
+# print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
+# FC = FinanceDisclosure()
 
 
 
@@ -170,8 +170,8 @@ class Transactions:
         self.Run()
         self.DB.Close()
     @staticmethod
-    def Url(Year: int) -> str:
-        return f'https://disclosures-clerk.house.gov/public_disc/financial-pdfs/{str(Year)}FD.zip'
+    def Url(Year: int, doc) -> str:
+        return f'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{str(Year)}/{str(doc)}.pdf'
     def GenerateURLS(self):
         #print( self.CurrentYear)
         DoesExist = []
@@ -180,16 +180,16 @@ class Transactions:
 
 
         AllDocs = []
-        for x in self.DB.Query('select distinct DocID from FinancialDisclosure'):
-            AllDocs.append(x[0])
+        for x in self.DB.Query('select distinct DocID,Year from FinancialDisclosure'):
+            AllDocs.append([x[0],x[1]])
 
 
-        
-        for Doc in range(len(AllDocs)):
+
+        for Doc in AllDocs:
             #print(self.CurrentYear-2)
-
-    
-                self.URLS.append(self.Url(year))
+            if Doc[0] not in DoesExist:
+                
+                self.URLS.append(self.Url(Doc[1],Doc[0]))
         #print(self.URLS)
 
 
@@ -219,13 +219,8 @@ class Transactions:
 
 
     def Run(self):
+        for URL in self.URLS:
+            print(URL)
 
 
-
-#SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
-#SQL("HouseStockTrades.db").ClearDB()
-#SQL("HouseStockTrades.db").CreateTables()
-
-#print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
-print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
-FC = FinanceDisclosure()
+T = Transactions()
