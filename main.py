@@ -5,6 +5,7 @@ from io import BytesIO
 from zipfile import ZipFile
 import json
 import xmltodict
+from lxml import etree
 class SQL:
     def __init__(self, dbname ) -> None:
         self.dbname = dbname
@@ -147,14 +148,15 @@ class FinanceDisclosure:
 
 
 #SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
-#SQL("HouseStockTrades.db").ClearDB()
-#SQL("HouseStockTrades.db").CreateTables()
+# SQL("HouseStockTrades.db").ClearDB()
+# SQL("HouseStockTrades.db").CreateTables()
 
 #print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
 # print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
 # FC = FinanceDisclosure()
-
-
+from pdfquery import PDFQuery
+from pdfminer.high_level import extract_text
+# print(extract_text('__TMP__.pdf') )
 
 
 class Transactions:
@@ -180,7 +182,7 @@ class Transactions:
 
 
         AllDocs = []
-        for x in self.DB.Query('select distinct DocID,Year from FinancialDisclosure'):
+        for x in self.DB.Query("select distinct DocID,Year from FinancialDisclosure where FilingType like 'p'"):
             AllDocs.append([x[0],x[1]])
 
 
@@ -216,11 +218,109 @@ class Transactions:
                 StringDict[x] = StringDict[x].replace('"','').replace("'",'')
             except:
                 pass
-
-
+    @staticmethod
+    def Name(XMLSTR):
+        return XMLSTR.split('Status:')[1].split('">')[2].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].replace('Hon.', '').replace('Mr.', '').replace('Ms.', '').replace('Mrs.', '').strip()
+    @staticmethod
+    def DistrictState(XMLSTR):
+        return XMLSTR.split('State/District:')[1].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+    @staticmethod
+    def TransactionNameList(XMLSTR):
+        SPLIT = XMLSTR.split('">')
+        for x in range(len(SPLIT)):
+            SPLIT[x] = SPLIT[x].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+        OUTPUT = []
+        for x in SPLIT:
+            if '(' in x  and ')' in x:
+                OUTPUT.append(x)
+        return OUTPUT
+    @staticmethod
+    def TransactionsDict(XMLSTR):
+        SPLIT = XMLSTR.split('">')
+        for x in range(len(SPLIT)):
+            SPLIT[x] = SPLIT[x].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+        OUTPUT = []
+        for x in SPLIT:
+            if '(' in x  and ')' in x:
+                OUTPUT.append(x)
+        return OUTPUT
+    @staticmethod
+    def FilingId(XMLSTR):
+        return XMLSTR.split('Filing ID #')[1].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+         
+     
     def Run(self):
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+        del self.URLS[0]
+
+        # del self.URLS[0]
+
+
         for URL in self.URLS:
-            print(URL)
+            FILENAME = '__TMP__.pdf'
+            __REQ = self.Downloadfile(URL)
+            
+            FS = open(FILENAME, 'wb')
+            FS.write(__REQ.content)
+            FS.close()
+
+
+            pdf = PDFQuery(FILENAME)
+            pdf.load()
+            pdf.tree.write('pdfXML.txt', pretty_print = True)
+
+            XMLSTR = str(etree.tostring(pdf.tree, pretty_print=False)).replace('stream="&lt;PDFStream(21)','')
+        
+            print(self.Name(XMLSTR))
+            print(self.DistrictState(XMLSTR))
+            print(self.FilingId(XMLSTR))
+            print(self.Transactions(XMLSTR))
+            break
+            if '2023' in URL:
+                print(URL)
 
 
 T = Transactions()
