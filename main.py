@@ -234,15 +234,23 @@ class Transactions:
             if '(' in x  and ')' in x:
                 OUTPUT.append(x)
         return OUTPUT
-    @staticmethod
-    def TransactionsDict(XMLSTR):
+    
+    def TransactionsDict(self,XMLSTR):
         SPLIT = XMLSTR.split('">')
         for x in range(len(SPLIT)):
             SPLIT[x] = SPLIT[x].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
-        OUTPUT = []
-        for x in SPLIT:
-            if '(' in x  and ')' in x:
-                OUTPUT.append(x)
+        OUTPUT = {}
+        LIST = self.TransactionNameList(XMLSTR)
+        
+        for x in range(len(LIST)):
+            #print(x)
+            #print(len(LIST) -1)
+            if x == len(LIST) -1 :
+                BETWEEN = XMLSTR.split(LIST[x])[1]
+            else:
+                BETWEEN = XMLSTR.split(LIST[x])[1].split(LIST[x+1])[0]
+            #print(LIST[x])
+            OUTPUT[LIST[x]] = BETWEEN
         return OUTPUT
     @staticmethod
     def FilingId(XMLSTR):
@@ -317,7 +325,11 @@ class Transactions:
             print(self.Name(XMLSTR))
             print(self.DistrictState(XMLSTR))
             print(self.FilingId(XMLSTR))
-            print(self.Transactions(XMLSTR))
+            print(self.TransactionNameList(XMLSTR))
+            t = self.TransactionsDict(XMLSTR)
+            for x in t:
+                print(x)
+                print(t[x])
             break
             if '2023' in URL:
                 print(URL)
