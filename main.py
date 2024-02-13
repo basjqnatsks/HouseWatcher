@@ -328,6 +328,21 @@ class Transactions:
             print(self.TransactionNameList(XMLSTR))
             t = self.TransactionsDict(XMLSTR)
             for x in t:
+                t[x] = t[x].split('">')
+                __O__ = []
+                for y in range(len(t[x])):
+                    
+                    t[x][y] = t[x][y].split("</LTTextBoxHorizontal></LTTextLineHorizontal>")[0]
+                    if "<LT" not in t[x][y]:
+                        __O__.append(t[x][y])
+                t[x] = __O__
+                for u in range(len(t[x])):
+                    t[x][u] = t[x][u].strip()
+                while True:
+                    try:
+                        t[x].remove("")
+                    except:
+                        break
                 print(x)
                 print(t[x])
             break
