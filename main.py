@@ -301,8 +301,8 @@ class Transactions:
         del self.URLS[0]
         del self.URLS[0]
         del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
+        # del self.URLS[0]
+        # del self.URLS[0]
 
         # del self.URLS[0]
 
