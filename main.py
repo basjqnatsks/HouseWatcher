@@ -154,9 +154,10 @@ class FinanceDisclosure:
 #print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
 # print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
 # FC = FinanceDisclosure()
-from pdfquery import PDFQuery
-from pdfminer.high_level import extract_text
+# from pdfquery import PDFQuery
+# from pdfminer.high_level import extract_text
 # print(extract_text('__TMP__.pdf') )
+import pdfplumber
 
 
 class Transactions:
@@ -220,10 +221,10 @@ class Transactions:
                 pass
     @staticmethod
     def Name(XMLSTR):
-        return XMLSTR.split('Status:')[1].split('">')[2].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].replace('Hon.', '').replace('Mr.', '').replace('Ms.', '').replace('Mrs.', '').strip()
+        return XMLSTR.split('name:')[1].split('\n')[0].replace('hon.', '').replace('mr.', '').replace('ms.', '').replace('mrs.', '').strip()
     @staticmethod
     def DistrictState(XMLSTR):
-        return XMLSTR.split('State/District:')[1].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+        return XMLSTR.split('state/district:')[1].split('\n')[0].strip()
     @staticmethod
     def TransactionNameList(XMLSTR):
         SPLIT = XMLSTR.split('">')
@@ -254,61 +255,12 @@ class Transactions:
         return OUTPUT
     @staticmethod
     def FilingId(XMLSTR):
-        return XMLSTR.split('Filing ID #')[1].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
+        return XMLSTR.split('filing id')[1].split('\n')[0].strip().replace('#','')
          
      
     def Run(self):
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        del self.URLS[0]
-        # del self.URLS[0]
-        # del self.URLS[0]
+        for x in range(790):
+            del self.URLS[0]
 
 
         for URL in self.URLS:
@@ -318,44 +270,54 @@ class Transactions:
             FS = open(FILENAME, 'wb')
             FS.write(__REQ.content)
             FS.close()
+            XMLSTR = ""
+            with pdfplumber.open('__TMP__.pdf') as pdf:
+                for x in range(len(pdf.pages)):
+                    first_page = pdf.pages[x]
+                    XMLSTR += first_page.extract_text().lower()
+            
+            
+            t = XMLSTR.split("type date")
+            del t[0]
+            #print(t)
 
-
-            pdf = PDFQuery(FILENAME)
-            pdf.load()
-            pdf.tree.write('pdfXML.txt', pretty_print = True)
-
-            XMLSTR = str(etree.tostring(pdf.tree, pretty_print=False)).replace('stream="&lt;PDFStream(21)','')
-        
-            print(self.Name(XMLSTR))
-            print(self.DistrictState(XMLSTR))
-            print(self.FilingId(XMLSTR))
-            print(self.TransactionNameList(XMLSTR))
-            t = self.TransactionsDict(XMLSTR)
+            for x in range(len(t)):
+                t[x] = t[x].split("initial public offerings")[0].split('filing status: new')
+                del t[x][-1]
+            # print(t)
+            # # 
+            # # 
+            Trans = []
             for x in t:
-                t[x] = t[x].split('">')
-                __O__ = []
-                for y in range(len(t[x])):
-                    
-                    t[x][y] = t[x][y].split("</LTTextBoxHorizontal></LTTextLineHorizontal>")[0]
-                    if "aSSet claSS DetailS" in t[x][y]:
-                        break
-                    if "iD" in t[x][y]:
-                        break
-                    if "<LT" not in t[x][y]:
-                        __O__.append(t[x][y])
-                t[x] = __O__
-                for u in range(len(t[x])):
-                    t[x][u] = t[x][u].strip()
-                while True:
-                    try:
-                        t[x].remove("")
-                    except:
-                        break
-                print(x)
-                print(t[x])
+                for y in x:
+                    Trans.append(y)
+
+            for x in range(len(Trans)):
+                DICT = {
+                    'AMOUNT_LOW': None,
+                    'AMOUNT_HIGH': None,
+                    'NOTIF_DATE' : None,
+                    'TRANS_DATE' : None,
+                    'ASSET' : None,
+                    'SUBHOLDING' : None,
+                }
+                TransString = Trans[x]
+                DICT['AMOUNT_HIGH'] = TransString.split('$')[-1]
+                DICT['AMOUNT_LOW'] = TransString.split('$')[-2]
+
+                ASSET_TEMP = TransString.split('$')[:-2][0].split('\n')[-1]
+                ASSET_TEMP = ASSET_TEMP.split(' s ')[0].split(' p ')[0]
+                DICT['ASSET'] = ASSET_TEMP
+                print(DICT)
+                Trans[x] = DICT
+            # print(XMLSTR)
+            # print(self.Name(XMLSTR))
+            # print(self.DistrictState(XMLSTR))
+            # print(self.FilingId(XMLSTR))
+            #print(self.TransactionNameList(XMLSTR))
+            # t = self.TransactionsDict(XMLSTR)
             break
-            if '2023' in URL:
-                print(URL)
+
 
 
 T = Transactions()
