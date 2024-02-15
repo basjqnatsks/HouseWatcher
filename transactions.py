@@ -106,11 +106,14 @@ class Transactions:
          
      
     def Run(self):
-        for x in range(1200):
+        # print(len(self.URLS))
+        for x in range(48+46+107):
             del self.URLS[0]
 
-
+        i=1
         for URL in self.URLS:
+            print(i)
+            i+=1
             FILENAME = '__TMP__.pdf'
             __REQ = self.Downloadfile(URL)
             
@@ -122,8 +125,8 @@ class Transactions:
                 for x in range(len(pdf.pages)):
                     first_page = pdf.pages[x]
                     XMLSTR += first_page.extract_text().lower()
-            
-            
+
+            open('out.txt', 'w').write(XMLSTR)
             t = XMLSTR.split("type date")
             del t[0]
             #print(t)
@@ -137,9 +140,15 @@ class Transactions:
             Trans = []
             for x in t:
                 for y in x:
+                    # if len(y) < 7:
+                    #     print(y.encode('UTF-8'))
+                    #     print('HA')
+                    if y=='\n':
+                        continue
                     Trans.append(y)
-
+            
             for x in range(len(Trans)):
+
                 DICT = {
                     'AMOUNT_LOW': None,
                     'AMOUNT_HIGH': None,
@@ -150,18 +159,25 @@ class Transactions:
                 }
                 
                 TransString = Trans[x]
+                if len(TransString) < 20 and "interest (" in TransString:
+                    continue
+                print('!'+TransString+'!')
                 DICT['AMOUNT_HIGH'] = int(''.join(i for i in TransString.split('$')[-1] if i.isdigit()))
+
                 DICT['AMOUNT_LOW'] = int(''.join(i for i in TransString.split('$')[-2] if i.isdigit()))
                 
                 ENDSTRING = TransString.split('$')[:-2][0].split('\n')[-1]
                 try:
                     DATES = ENDSTRING.split(' s ')[1].strip().split(' ')
                 except:
-                    DATES = ENDSTRING.split(' p ')[1].strip().split(' ')
+                    try:
+                        DATES = ENDSTRING.split(' p ')[1].strip().split(' ')
+                    except:
+                        DATES = ENDSTRING.split(' e ')[1].strip().split(' ')
                 DICT['TRANS_DATE'] = DATES[0]
                 DICT['NOTIF_DATE'] = DATES[1]
 
-                ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0]
+                ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
 
                 DICT['ASSET'] = ASSET_TEMP
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
@@ -173,5 +189,5 @@ class Transactions:
             # print(self.FilingId(XMLSTR))
             #print(self.TransactionNameList(XMLSTR))
             # t = self.TransactionsDict(XMLSTR)
-            break
+            #break
 

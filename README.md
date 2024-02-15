@@ -1,1 +1,1 @@
-Code that downloads transactions from congress memebers and stores in NOSQL DB
+Code that downloads transactions from congress members and stores in NOSQL DB
