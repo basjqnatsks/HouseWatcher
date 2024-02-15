@@ -1,6 +1,6 @@
 from financedisclosure import FinanceDisclosure
 from transactions import Transactions
-
+from sql import SQL
 
 #SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
 # SQL("HouseStockTrades.db").ClearDB()

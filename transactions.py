@@ -107,16 +107,16 @@ class Transactions:
      
     def Run(self):
         # print(len(self.URLS))
-        for x in range(48+46+107):
-            del self.URLS[0]
+        # for x in range(1809+800):
+        #     del self.URLS[0]
 
-        i=1
+        iz=1
         for URL in self.URLS:
-            print(i)
-            i+=1
+            print(iz)
+            iz+=1
             FILENAME = '__TMP__.pdf'
             __REQ = self.Downloadfile(URL)
-            
+
             FS = open(FILENAME, 'wb')
             FS.write(__REQ.content)
             FS.close()
@@ -125,8 +125,8 @@ class Transactions:
                 for x in range(len(pdf.pages)):
                     first_page = pdf.pages[x]
                     XMLSTR += first_page.extract_text().lower()
-
-            open('out.txt', 'w').write(XMLSTR)
+            XMLSTR = XMLSTR.encode('ISO 8859-1', 'ignore').decode('ISO 8859-1','ignore')
+            #open('out.txt', 'w').write(XMLSTR)
             t = XMLSTR.split("type date")
             del t[0]
             #print(t)
@@ -159,30 +159,73 @@ class Transactions:
                 }
                 
                 TransString = Trans[x]
-                if len(TransString) < 20 and "interest (" in TransString:
-                    continue
-                print('!'+TransString+'!')
-                DICT['AMOUNT_HIGH'] = int(''.join(i for i in TransString.split('$')[-1] if i.isdigit()))
 
-                DICT['AMOUNT_LOW'] = int(''.join(i for i in TransString.split('$')[-2] if i.isdigit()))
-                
-                ENDSTRING = TransString.split('$')[:-2][0].split('\n')[-1]
+                # print('!'+TransString+'!')
                 try:
-                    DATES = ENDSTRING.split(' s ')[1].strip().split(' ')
+                    tza = TransString.split('$')
                 except:
+                    continue
+                CON = 1
+                #print(tza)
+                for z in tza:
+                    #print(z)
                     try:
-                        DATES = ENDSTRING.split(' p ')[1].strip().split(' ')
+                        z.split(' s ')[1]
+                        DATES = z.split(' s ')[-1].strip().split(' ')
+                        CON = None
+                        break
                     except:
-                        DATES = ENDSTRING.split(' e ')[1].strip().split(' ')
+                        try:
+                            z.split(' p ')[1]
+                            DATES = z.split(' p ')[-1].strip().split(' ')
+                            CON = None
+                            break
+                        except:
+                            try:
+                                z.split(' e ')[1]
+                                DATES = z.split(' e ')[-1].strip().split(' ')
+                                CON = None
+                                break
+                            except:
+                                pass
+                                
+                            
+                            #print(TransString.split('$')[:-2][-1].split('\n'))
+                            #del ENDSTRING[-1]
+                #print(TransString)  
+                #print(z.split(' s ')[-1])
+                
+
+
+
+                if CON:
+                    #print('CON')
+                    continue
+
+
+
+                #print(DATES)
+                TYU = TransString.split('$')
+                if len(''.join(i for i in TYU[-1] if i.isdigit())) == 0:
+                    del TYU[-1]
+                #print(TYU)
                 DICT['TRANS_DATE'] = DATES[0]
                 DICT['NOTIF_DATE'] = DATES[1]
-
+                DICT['AMOUNT_HIGH'] = int(''.join(i for i in TYU[-1] if i.isdigit()))
+                DICT['AMOUNT_LOW'] = int(''.join(i for i in TYU[-2] if i.isdigit()))
+                #print(TYU)
+                while len(TYU) > 1:
+                    del TYU[-1]
+                tza = TYU
+                ENDSTRING = tza[-1].split('\n')[-1]
                 ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
 
                 DICT['ASSET'] = ASSET_TEMP
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
-                print(DICT)
+                #print(DICT)
                 Trans[x] = DICT
+
+
             # print(XMLSTR)
             # print(self.Name(XMLSTR))
             # print(self.DistrictState(XMLSTR))
@@ -191,3 +234,4 @@ class Transactions:
             # t = self.TransactionsDict(XMLSTR)
             #break
 
+Transactions()
