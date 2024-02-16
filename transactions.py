@@ -15,8 +15,6 @@ class Transactions:
         self.DB = SQL("HouseStockTrades.db")
 
         self.GenerateURLS()
-
-
         self.Run()
         self.DB.Close()
     @staticmethod
@@ -27,22 +25,15 @@ class Transactions:
         DoesExist = []
         for x in self.DB.Query('select distinct FilingId from Transactions'):
             DoesExist.append(x[0])
-
-
         AllDocs = []
         for x in self.DB.Query("select distinct DocID,Year from FinancialDisclosure where FilingType like 'p'"):
             AllDocs.append([x[0],x[1]])
-
-
-
         for Doc in AllDocs:
             #print(self.CurrentYear-2)
             if Doc[0] not in DoesExist:
                 
                 self.URLS.append(self.Url(Doc[1],Doc[0]))
         #print(self.URLS)
-
-
     @staticmethod
     def Downloadfile(URL):
         return requests.get(URL)
@@ -82,14 +73,12 @@ class Transactions:
             if '(' in x  and ')' in x:
                 OUTPUT.append(x)
         return OUTPUT
-    
     def TransactionsDict(self,XMLSTR):
         SPLIT = XMLSTR.split('">')
         for x in range(len(SPLIT)):
             SPLIT[x] = SPLIT[x].split('</LTTextBoxHorizontal></LTTextLineHorizontal>')[0].strip()
         OUTPUT = {}
         LIST = self.TransactionNameList(XMLSTR)
-        
         for x in range(len(LIST)):
             #print(x)
             #print(len(LIST) -1)
@@ -103,20 +92,16 @@ class Transactions:
     @staticmethod
     def FilingId(XMLSTR):
         return XMLSTR.split('filing id')[1].split('\n')[0].strip().replace('#','')
-         
-     
     def Run(self):
-        # print(len(self.URLS))
-        # for x in range(1809+800):
-        #     del self.URLS[0]
-
+        print(len(self.URLS))
+        for x in range(6208+200+140+113):
+            del self.URLS[0]
         iz=1
         for URL in self.URLS:
             print(iz)
             iz+=1
             FILENAME = '__TMP__.pdf'
             __REQ = self.Downloadfile(URL)
-
             FS = open(FILENAME, 'wb')
             FS.write(__REQ.content)
             FS.close()
@@ -126,7 +111,7 @@ class Transactions:
                     first_page = pdf.pages[x]
                     XMLSTR += first_page.extract_text().lower()
             XMLSTR = XMLSTR.encode('ISO 8859-1', 'ignore').decode('ISO 8859-1','ignore')
-            #open('out.txt', 'w').write(XMLSTR)
+            open('out.txt', 'w').write(XMLSTR)
             t = XMLSTR.split("type date")
             del t[0]
             #print(t)
@@ -134,21 +119,14 @@ class Transactions:
             for x in range(len(t)):
                 t[x] = t[x].split("initial public offerings")[0].split('filing status: new')
                 del t[x][-1]
-            # print(t)
-            # # 
-            # # 
+            #print(t)
             Trans = []
             for x in t:
                 for y in x:
-                    # if len(y) < 7:
-                    #     print(y.encode('UTF-8'))
-                    #     print('HA')
                     if y=='\n':
                         continue
                     Trans.append(y)
-            
             for x in range(len(Trans)):
-
                 DICT = {
                     'AMOUNT_LOW': None,
                     'AMOUNT_HIGH': None,
@@ -157,9 +135,7 @@ class Transactions:
                     'ASSET' : None,
                     'SUBHOLDING' : None,
                 }
-                
                 TransString = Trans[x]
-
                 # print('!'+TransString+'!')
                 try:
                     tza = TransString.split('$')
@@ -188,22 +164,13 @@ class Transactions:
                                 break
                             except:
                                 pass
-                                
-                            
                             #print(TransString.split('$')[:-2][-1].split('\n'))
                             #del ENDSTRING[-1]
                 #print(TransString)  
                 #print(z.split(' s ')[-1])
-                
-
-
-
                 if CON:
                     #print('CON')
                     continue
-
-
-
                 #print(DATES)
                 TYU = TransString.split('$')
                 if len(''.join(i for i in TYU[-1] if i.isdigit())) == 0:
@@ -219,19 +186,25 @@ class Transactions:
                 tza = TYU
                 ENDSTRING = tza[-1].split('\n')[-1]
                 ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
-
                 DICT['ASSET'] = ASSET_TEMP
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
-                #print(DICT)
+                print(DICT)
                 Trans[x] = DICT
 
-
+            if Trans == []:
+                t = XMLSTR.split("type date gains >\n$200?")[1].split('f s: new')
+                print(t)
+                for x in t:
+                    
+                    Trans.append(x)
+            print(Trans)
             # print(XMLSTR)
             # print(self.Name(XMLSTR))
             # print(self.DistrictState(XMLSTR))
             # print(self.FilingId(XMLSTR))
             #print(self.TransactionNameList(XMLSTR))
             # t = self.TransactionsDict(XMLSTR)
-            #break
+            
+            break
 
 Transactions()
