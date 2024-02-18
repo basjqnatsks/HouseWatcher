@@ -1,6 +1,6 @@
-from financedisclosure import FinanceDisclosure
-from transactions import Transactions
-from sql import SQL
+# from financedisclosure import FinanceDisclosure
+# from transactions import Transactions
+# from sql import SQL
 
 # SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
 # SQL("HouseStockTrades.db").ClearDB()
@@ -19,7 +19,7 @@ connection = psycopg2.connect(database="house", user="postgres", password="pass"
 
 cursor = connection.cursor()
 
-cursor.execute("SELECT * from public.financialdisclosure;")
+cursor.execute("select * from information_schema.tables where table_schema = 'public';")
 
 # Fetch all rows from database
 record = cursor.fetchall()
