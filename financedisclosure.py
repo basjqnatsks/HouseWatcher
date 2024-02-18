@@ -9,7 +9,7 @@ class FinanceDisclosure:
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
-        self.DB = SQL("HouseStockTrades.db")
+        # self.DB = SQL("HouseStockTrades.db")
 
         self.GenerateURLS()
 

@@ -2,7 +2,7 @@ from financedisclosure import FinanceDisclosure
 from transactions import Transactions
 from sql import SQL
 
-#SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
+# SQL("HouseStockTrades.db").PrintAll('FinancialDisclosure')
 # SQL("HouseStockTrades.db").ClearDB()
 # SQL("HouseStockTrades.db").CreateTables()
 
@@ -13,7 +13,17 @@ from sql import SQL
 # from pdfminer.high_level import extract_text
 # print(extract_text('__TMP__.pdf') )
 
+import psycopg2
 
+connection = psycopg2.connect(database="house", user="postgres", password="pass", host="localhost", port=5432)
 
+cursor = connection.cursor()
 
-T = Transactions()
+cursor.execute("SELECT * from public.financialdisclosure;")
+
+# Fetch all rows from database
+record = cursor.fetchall()
+
+print("Data from Database:- ", record)
+
+# T = Transactions()

@@ -206,5 +206,3 @@ class Transactions:
             # t = self.TransactionsDict(XMLSTR)
             
             break
-
-Transactions()
