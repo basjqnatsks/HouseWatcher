@@ -2,7 +2,7 @@ import psycopg2
 class SQLP:
     def __init__(self, dbname ) -> None:
         self.connection = psycopg2.connect(database=dbname, user="postgres", password="pass", host="localhost", port=5432)
-
+        self.connection.autocommit = True
 
     # def Refresh(self):
     #     self.connection.close()
@@ -41,25 +41,17 @@ class SQLP:
     def DoesTransDocExist(self,DociD):
         cur = self.connection.cursor()
         QUERY = f"select 1 from transactions where filingid = '{DociD}' limit 1"
-        # print(QUERY)
-        res = cur.execute(QUERY)
-        OUT =cur.fetchall()
-        # for x in cur.fetchall():
-        #     OUT.append(x[2])
-        return OUT
-    def DoesTransDocExist(self,DociD):
-        cur = self.connection.cursor()
-        QUERY = f"select 1 from transactions where filingid = '{DociD}' limit 1"
-        # print(QUERY)
+        print(QUERY)
         res = cur.execute(QUERY)
         OUT =cur.fetchall()
         # for x in cur.fetchall():
         #     OUT.append(x[2])
         return OUT
 
+
     def Insert(self, table, values):
         __C = self.connection.cursor()
-        # print(f"INSERT INTO {table} VALUES ({values})")
+        print(f"INSERT INTO {table} VALUES ({values})")
         __C.execute(f"INSERT INTO {table} VALUES ({values})")
         self.connection.commit()
         #self.Refresh()
@@ -87,7 +79,11 @@ class SQLP:
         __C = self.connection.cursor()
         __C.execute(string)
         self.connection.commit()
-        return __C.fetchall()
+        try:
+            _R = __C.fetchall()
+        except:
+            return 0
+        return _R
     
 
 # cursor = connection.cursor()

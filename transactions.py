@@ -21,19 +21,21 @@ class Transactions:
     def Url(Year: int, doc) -> str:
         return f'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{str(Year)}/{str(doc)}.pdf'
     def GenerateURLS(self):
-        #print( self.CurrentYear)
+        # print( self.CurrentYear)
         # DoesExist = []
         # for x in self.DB.Query('select distinct FilingId from Transactions'):
         #     DoesExist.append(x[0])
-        # AllDocs = []
-        for x in self.DB.Query("select distinct DocID,Year from FinancialDisclosure where FilingType like 'p'"):
+        AllDocs = []
+        for x in self.DB.Query("select distinct DocID,Year from FinancialDisclosure where FilingType like 'P'"):
             AllDocs.append([x[0],x[1]])
         for Doc in AllDocs:
             #print(self.CurrentYear-2)
-            if Doc[0] not in DoesExist:
-                
+            # if Doc[0] ==20006946:
+            #     print(self.DB.DoesTransDocExist(x[0]))
+            DOESEXIST = self.DB.DoesTransDocExist(Doc[0])
+            if len(DOESEXIST) == 0:
                 self.URLS.append(self.Url(Doc[1],Doc[0]))
-        #print(self.URLS)
+        # print(self.URLS)
     @staticmethod
     def Downloadfile(URL):
         return requests.get(URL)
@@ -50,6 +52,20 @@ class Transactions:
     def printZipFiles(self, zip): 
         for x in self.getZipFiles(zip):
             print(x)
+    @staticmethod
+    def is_date(string, fuzzy=False):
+        """
+        Return whether the string can be interpreted as a date.
+
+        :param string: str, string to check for date
+        :param fuzzy: bool, ignore unknown tokens in string if True
+        """
+        try: 
+            parse(string, fuzzy=fuzzy)
+            return True
+
+        except ValueError:
+            return False
     @staticmethod
     def CleanMember(StringDict):
         for x in StringDict:
@@ -93,14 +109,15 @@ class Transactions:
     def FilingId(XMLSTR):
         return XMLSTR.split('filing id')[1].split('\n')[0].strip().replace('#','')
     def Run(self):
-        print(len(self.URLS))
-        for x in range(6208+200+140+113):
+        # print(len(self.URLS))
+        for x in range(875):
             del self.URLS[0]
         iz=1
         for URL in self.URLS:
             print(iz)
             iz+=1
             FILENAME = '__TMP__.pdf'
+            # print(URL)
             __REQ = self.Downloadfile(URL)
             FS = open(FILENAME, 'wb')
             FS.write(__REQ.content)
@@ -114,18 +131,28 @@ class Transactions:
             open('out.txt', 'w').write(XMLSTR)
             t = XMLSTR.split("type date")
             del t[0]
-            #print(t)
+            # print(t)
+            if t ==[]:
+                continue
 
             for x in range(len(t)):
-                t[x] = t[x].split("initial public offerings")[0].split('filing status: new')
-                del t[x][-1]
-            #print(t)
+                t[x] = t[x].split("initial public offerings")[0]
+                t[x] =t[x].split('filing status: new')
+                # print(len(t[x]))
+                if len(t[x]) == 1:
+                    t[x] = t[x][0]
+                    t[x].split('filing status: amended')
+                else:
+                    del t[x][-1]
+            
             Trans = []
             for x in t:
+                # print(x)
                 for y in x:
                     if y=='\n':
                         continue
                     Trans.append(y)
+            # print(Trans)
             for x in range(len(Trans)):
                 DICT = {
                     'AMOUNT_LOW': None,
@@ -144,7 +171,7 @@ class Transactions:
                 CON = 1
                 #print(tza)
                 for z in tza:
-                    #print(z)
+                    # print(z)
                     try:
                         z.split(' s ')[1]
                         DATES = z.split(' s ')[-1].strip().split(' ')
@@ -188,21 +215,40 @@ class Transactions:
                 ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
                 DICT['ASSET'] = ASSET_TEMP
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
-                print(DICT)
+                #print(DICT)
                 Trans[x] = DICT
-
+            # print(Trans)
             if Trans == []:
                 t = XMLSTR.split("type date gains >\n$200?")[1].split('f s: new')
-                print(t)
+                # print(t)
                 for x in t:
                     
                     Trans.append(x)
-            print(Trans)
+            # print(Trans)
             # print(XMLSTR)
             # print(self.Name(XMLSTR))
             # print(self.DistrictState(XMLSTR))
-            # print(self.FilingId(XMLSTR))
+            DICT['FILID'] = self.FilingId(XMLSTR)
             #print(self.TransactionNameList(XMLSTR))
             # t = self.TransactionsDict(XMLSTR)
-            
+           #INSERT INTO transactions VALUES ('','','','','','jt apple inc. (aapl)','',)
+            print(DICT)
+            # print(self.is_date(str(DICT['NOTIF_DATE'])))
+            if DICT['ASSET'] and DICT['ASSET'] != '' and DICT['FILID'] and DICT['AMOUNT_HIGH'] and DICT['AMOUNT_LOW'] and DICT['NOTIF_DATE']:
+                DICT['ASSET']= DICT['ASSET'].replace("'",'')
+                try:
+                    int(DICT['AMOUNT_LOW'])
+                    int(DICT['AMOUNT_HIGH'])
+                    int(DICT['FILID'])
+                    
+                except:
+                    # print('Skip')
+                    continue
+                if DICT['AMOUNT_HIGH'] < 150010600 and  DICT['AMOUNT_LOW'] < 150010600 and self.is_date(str(DICT['NOTIF_DATE'])):
+                    # print(DICT['NOTIF_DATE'])
+                    print('Sent')
+                    self.DB.Query(f"INSERT INTO transactions VALUES ('','','','','','{DICT['ASSET']}','','01-01-1970',{DICT['FILID']},'01-01-1970','01-01-1970',125,{DICT['AMOUNT_LOW']},{DICT['AMOUNT_HIGH']},'{DICT['NOTIF_DATE']}')")
+
             break
+
+Transactions()

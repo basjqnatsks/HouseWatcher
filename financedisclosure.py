@@ -88,3 +88,4 @@ class FinanceDisclosure:
                             Member['FilingDate'] = '01-01-1970'
                         self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
         # #DB.PrintAllTables()
+FinanceDisclosure()

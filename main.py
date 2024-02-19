@@ -1,4 +1,4 @@
-from financedisclosure import FinanceDisclosure
+# from financedisclosure import FinanceDisclosure
 # from transactions import Transactions
 # from sql import SQL
 
@@ -8,7 +8,7 @@ from financedisclosure import FinanceDisclosure
 
 #print(SQL("HouseStockTrades.db").Query("DELETE from FinancialDisclosure where year in ('2024', '2023', '2022', '2021')"))
 # print(SQL("HouseStockTrades.db").Query('select distinct year from FinancialDisclosure'))
-FC = FinanceDisclosure()
+# FC = FinanceDisclosure()
 # from pdfquery import PDFQuery
 # from pdfminer.high_level import extract_text
 # print(extract_text('__TMP__.pdf') )
@@ -19,9 +19,9 @@ FC = FinanceDisclosure()
 
 # cursor = connection.cursor()
 
-# # cursor.execute("select * from information_schema.tables where table_schema = 'public';")
+# cursor.execute("INSERT INTO transactions VALUES ('','','','','','54545','','01-01-1970',521,'01-01-1970','01-01-1970',125,1,1,'01-01-1970');")
 
-# cursor.execute("INSERT INTO movie VALUES ('test','test',1)")
+# # cursor.execute("INSERT INTO movie VALUES ('test','test',1)")
 
 # connection.commit()
 # Fetch all rows from database
