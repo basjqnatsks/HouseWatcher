@@ -133,6 +133,9 @@ class Transactions:
             del t[0]
             # print(t)
             if t ==[]:
+                # print(URL.split('.pdf')[0].split('/')[-1])
+                print(f"INSERT INTO transactions VALUES ('','','PICTURE','','01-01-1970',{URL.split('.pdf')[0].split('/')[-1]},'01-01-1970',-1,-1,'01-01-1970')")
+                self.DB.Query(f"INSERT INTO transactions VALUES ('','PICTURE','','01-01-1970',{URL.split('.pdf')[0].split('/')[-1]},'01-01-1970',-1,-1,'01-01-1970')")
                 continue
 
             for x in range(len(t)):
@@ -207,15 +210,26 @@ class Transactions:
                 DICT['NOTIF_DATE'] = DATES[1]
                 DICT['AMOUNT_HIGH'] = int(''.join(i for i in TYU[-1] if i.isdigit()))
                 DICT['AMOUNT_LOW'] = int(''.join(i for i in TYU[-2] if i.isdigit()))
-                #print(TYU)
+                print(TYU)
                 while len(TYU) > 1:
                     del TYU[-1]
                 tza = TYU
                 ENDSTRING = tza[-1].split('\n')[-1]
+                
                 ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
+                if ASSET_TEMP == '':
+                    TYU = TransString.split('$')
+                    del TYU[0]
+                    while len(TYU) > 1:
+                        del TYU[-1]
+                    tza = TYU
+                    ENDSTRING = tza[-1].split('\n')[-1]
+                    ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
+
                 DICT['ASSET'] = ASSET_TEMP
+
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
-                #print(DICT)
+                print(DICT)
                 Trans[x] = DICT
             # print(Trans)
             if Trans == []:
@@ -246,9 +260,9 @@ class Transactions:
                     continue
                 if DICT['AMOUNT_HIGH'] < 150010600 and  DICT['AMOUNT_LOW'] < 150010600 and self.is_date(str(DICT['NOTIF_DATE'])):
                     # print(DICT['NOTIF_DATE'])
-                    print('Sent')
-                    self.DB.Query(f"INSERT INTO transactions VALUES ('','','','','','{DICT['ASSET']}','','01-01-1970',{DICT['FILID']},'01-01-1970','01-01-1970',125,{DICT['AMOUNT_LOW']},{DICT['AMOUNT_HIGH']},'{DICT['NOTIF_DATE']}')")
+                    # print('Sent')
+                    self.DB.Query(f"INSERT INTO transactions VALUES ('','{DICT['ASSET']}','','01-01-1970',{DICT['FILID']},'01-01-1970',{DICT['AMOUNT_LOW']},{DICT['AMOUNT_HIGH']},'{DICT['NOTIF_DATE']}')")
 
-            break
+            # break
 
 Transactions()
