@@ -1,6 +1,6 @@
 import requests
 import datetime
-from sql import SQL
+from sql_postgre import SQLP
 import json
 from zipfile import ZipFile
 from io import BytesIO
@@ -12,7 +12,7 @@ class Transactions:
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
-        self.DB = SQL("HouseStockTrades.db")
+        self.DB = SQLP("house")
 
         self.GenerateURLS()
         self.Run()
@@ -22,10 +22,10 @@ class Transactions:
         return f'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{str(Year)}/{str(doc)}.pdf'
     def GenerateURLS(self):
         #print( self.CurrentYear)
-        DoesExist = []
-        for x in self.DB.Query('select distinct FilingId from Transactions'):
-            DoesExist.append(x[0])
-        AllDocs = []
+        # DoesExist = []
+        # for x in self.DB.Query('select distinct FilingId from Transactions'):
+        #     DoesExist.append(x[0])
+        # AllDocs = []
         for x in self.DB.Query("select distinct DocID,Year from FinancialDisclosure where FilingType like 'p'"):
             AllDocs.append([x[0],x[1]])
         for Doc in AllDocs:

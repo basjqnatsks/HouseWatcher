@@ -29,7 +29,7 @@ class SQLP:
             OUT.append(x[2])
         return OUT
     
-    def Doesexist(self,DociD):
+    def DoesFinanceExist(self,DociD):
         cur = self.connection.cursor()
         QUERY = f"select 1 from FinancialDisclosure where docid = '{DociD}' limit 1"
         # print(QUERY)
@@ -38,7 +38,24 @@ class SQLP:
         # for x in cur.fetchall():
         #     OUT.append(x[2])
         return OUT
-
+    def DoesTransDocExist(self,DociD):
+        cur = self.connection.cursor()
+        QUERY = f"select 1 from transactions where filingid = '{DociD}' limit 1"
+        # print(QUERY)
+        res = cur.execute(QUERY)
+        OUT =cur.fetchall()
+        # for x in cur.fetchall():
+        #     OUT.append(x[2])
+        return OUT
+    def DoesTransDocExist(self,DociD):
+        cur = self.connection.cursor()
+        QUERY = f"select 1 from transactions where filingid = '{DociD}' limit 1"
+        # print(QUERY)
+        res = cur.execute(QUERY)
+        OUT =cur.fetchall()
+        # for x in cur.fetchall():
+        #     OUT.append(x[2])
+        return OUT
 
     def Insert(self, table, values):
         __C = self.connection.cursor()

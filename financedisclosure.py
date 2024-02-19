@@ -79,7 +79,7 @@ class FinanceDisclosure:
                 #print(DoesExist)
                 Members = dict['FinancialDisclosure']['Member']
                 for Member in Members:
-                    DOESEXIST = self.DB.Doesexist(Member['DocID'])
+                    DOESEXIST = self.DB.DoesFinanceExist(Member['DocID'])
                     # print(len(DOESEXIST))
                     if len(DOESEXIST) == 0:
                         self.CleanMember(Member)
