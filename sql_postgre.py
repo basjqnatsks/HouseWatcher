@@ -1,5 +1,5 @@
 import psycopg2
-class SQL:
+class SQLP:
     def __init__(self, dbname ) -> None:
         self.connection = psycopg2.connect(database=dbname, user="postgres", password="pass", host="localhost", port=5432)
 
@@ -28,9 +28,21 @@ class SQL:
         for x in cur.fetchall():
             OUT.append(x[2])
         return OUT
+    
+    def Doesexist(self,DociD):
+        cur = self.connection.cursor()
+        QUERY = f"select 1 from FinancialDisclosure where docid = '{DociD}' limit 1"
+        # print(QUERY)
+        res = cur.execute(QUERY)
+        OUT =cur.fetchall()
+        # for x in cur.fetchall():
+        #     OUT.append(x[2])
+        return OUT
+
+
     def Insert(self, table, values):
         __C = self.connection.cursor()
-        
+        # print(f"INSERT INTO {table} VALUES ({values})")
         __C.execute(f"INSERT INTO {table} VALUES ({values})")
         self.connection.commit()
         #self.Refresh()
@@ -70,5 +82,5 @@ class SQL:
 
 # print("Data from Database:- ", record)
     
-s = SQL('house')
-s.PrintAllTables()
+# s = SQL('house')
+# s.PrintAllTables()

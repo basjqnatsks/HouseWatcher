@@ -1,6 +1,6 @@
 import requests
 import datetime
-from sql import SQL
+from sql_postgre import SQLP
 import xmltodict
 from zipfile import ZipFile
 from io import BytesIO
@@ -9,7 +9,7 @@ class FinanceDisclosure:
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
-        # self.DB = SQL("HouseStockTrades.db")
+        self.DB = SQLP("house")
 
         self.GenerateURLS()
 
@@ -79,10 +79,12 @@ class FinanceDisclosure:
                 #print(DoesExist)
                 Members = dict['FinancialDisclosure']['Member']
                 for Member in Members:
-                    
-                    if Member['DocID'] not in DoesExist:
-                        
+                    DOESEXIST = self.DB.Doesexist(Member['DocID'])
+                    # print(len(DOESEXIST))
+                    if len(DOESEXIST) == 0:
                         self.CleanMember(Member)
-                        #print(Member)
+                        # print(Member)
+                        if not Member['FilingDate']:
+                            Member['FilingDate'] = '01-01-1970'
                         self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
-        #DB.PrintAllTables()
+        # #DB.PrintAllTables()
