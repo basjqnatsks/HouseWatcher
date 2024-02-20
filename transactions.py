@@ -7,6 +7,7 @@ from io import BytesIO
 import pdfplumber
 from lxml import etree
 from dateutil.parser import parse
+import copy
 class Transactions:
     def __init__(self) -> None:
         self.FirstYear = 2008
@@ -15,7 +16,7 @@ class Transactions:
         self.DB = SQLP("house")
 
         self.GenerateURLS()
-        self.Run()
+        self.main()
         self.DB.Close()
     @staticmethod
     def Url(Year: int, doc) -> str:
@@ -61,6 +62,8 @@ class Transactions:
         :param fuzzy: bool, ignore unknown tokens in string if True
         """
         try: 
+            if "/" not in string:
+                return False
             parse(string, fuzzy=fuzzy)
             return True
 
@@ -108,35 +111,189 @@ class Transactions:
     @staticmethod
     def FilingId(XMLSTR):
         return XMLSTR.split('filing id')[1].split('\n')[0].strip().replace('#','')
-    def Run(self):
-        # print(len(self.URLS))
-        for x in range(875):
+    @staticmethod
+    def __dumppdf(content):
+        FILENAME = '__TMP__.pdf'
+        FS = open(FILENAME, 'wb')
+        FS.write(content)
+        FS.close()
+
+
+    @staticmethod
+    def PdftoText():
+        XMLSTR = "" 
+        with pdfplumber.open('__TMP__.pdf') as pdf:
+            for x in range(len(pdf.pages)):
+                first_page = pdf.pages[x]
+                XMLSTR += first_page.extract_text().lower()
+        XMLSTR = XMLSTR.encode('ISO 8859-1', 'ignore').decode('ISO 8859-1','ignore')
+        return XMLSTR
+    
+
+    def OldParse(self, content):
+        output = []
+
+
+        TransSplit = content.split("type date\n")
+
+        #delete before transactions
+
+        del TransSplit[0]
+
+
+        TransSplit[-1]  = TransSplit[-1].split("asset class details")[0]
+
+        PreTransactions = []
+
+        for TMP in TransSplit:
+            for x in TMP.split('\n'):
+                PreTransactions.append(x )
+
+        
+        #remove empties
+        while True:
+            try:
+                PreTransactions.remove('')
+            except:
+                break
+        JustTransactions = []
+
+        for x in range(len(PreTransactions)):
+            if "filing status:" not in PreTransactions[x] and "subholding of:" not in PreTransactions[x] and "description:" not in PreTransactions[x]:
+                if "$" in PreTransactions[x]:
+                    JustTransactions.append(PreTransactions[x])
+
+
+
+
+        for x in JustTransactions:
+            # print(x)
+            DICT = {
+            'AMOUNT_LOW': None,
+            'AMOUNT_HIGH': None,
+            'NOTIF_DATE' : None,
+            'TRANS_DATE' : None,
+            'ASSET' : None,
+            'SUBHOLDING' : None,
+            'TRANTYPE': None
+            }
+
+        
+            SplitOnDollar = x.split('$')
+            JustDollars = SplitOnDollar[-2:]
+            NoDollars = SplitOnDollar[0].strip()
+            NoDollarsSplitonSpace = NoDollars.split(' ')
+
+
+
+            #clean up dollars
+            for io in range(len(JustDollars)):
+                JustDollars[io] = JustDollars[io].replace(',','').replace('-','').strip()
+            
+            #clean up NoDollars
+            for io in range(len(NoDollarsSplitonSpace)):
+                NoDollarsSplitonSpace[io] = NoDollarsSplitonSpace[io].strip()
+            
+
+            #find first date in list
+            for PotentialTradeDate in NoDollarsSplitonSpace:
+                if self.is_date(PotentialTradeDate):
+                    DICT['TRANS_DATE'] = PotentialTradeDate
+                    break
+
+
+            #find last date in list
+            for num in range(len(NoDollarsSplitonSpace)-1, -1, -1):
+
+                if self.is_date(NoDollarsSplitonSpace[num]):
+                    DICT['NOTIF_DATE'] = NoDollarsSplitonSpace[num]
+                    break
+
+            DICT['AMOUNT_LOW'] = JustDollars[0]
+            DICT['AMOUNT_HIGH'] = JustDollars[1]
+
+            # print(DICT)
+            try:
+                NoDollarsSplitonSpace.remove(DICT['NOTIF_DATE'])
+            except:
+                pass
+            try:
+                NoDollarsSplitonSpace.remove(DICT['TRANS_DATE'])
+            except:
+                pass
+
+            DICT['TRANTYPE'] = NoDollarsSplitonSpace[-1]
+            NotCombinedAsset = NoDollarsSplitonSpace[:-1]
+            AssetString = ''
+            for pqpw in NotCombinedAsset:
+                AssetString += pqpw + ' '
+
+            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip()
+            
+            
+            # print(DICT)
+            output.append(DICT)
+        return output
+
+
+
+    @staticmethod
+    def CheckXMLversion(content):
+        if "type date gains >\n$200?" in content:
+            return 2
+        if "type date" in content:
+            return 1
+        if len(content) == 0:
+            return 0
+
+    def main(self):
+        FILENAME = '__TMP__.pdf'
+
+        for x in range(876+15):
             del self.URLS[0]
-        iz=1
+
+        UrlIter=1
+        #Iterate through all premade urls
         for URL in self.URLS:
-            print(iz)
-            iz+=1
-            FILENAME = '__TMP__.pdf'
-            # print(URL)
-            __REQ = self.Downloadfile(URL)
-            FS = open(FILENAME, 'wb')
-            FS.write(__REQ.content)
-            FS.close()
-            XMLSTR = ""
-            with pdfplumber.open('__TMP__.pdf') as pdf:
-                for x in range(len(pdf.pages)):
-                    first_page = pdf.pages[x]
-                    XMLSTR += first_page.extract_text().lower()
-            XMLSTR = XMLSTR.encode('ISO 8859-1', 'ignore').decode('ISO 8859-1','ignore')
+            #Number Counter
+            print(UrlIter)
+            UrlIter+=1
+
+
+
+            __Request__ = self.Downloadfile(URL)
+            self.__dumppdf(__Request__.content)
+
+            XMLSTR = self.PdftoText()
             open('out.txt', 'w').write(XMLSTR)
-            t = XMLSTR.split("type date")
-            del t[0]
-            # print(t)
-            if t ==[]:
-                # print(URL.split('.pdf')[0].split('/')[-1])
-                print(f"INSERT INTO transactions VALUES ('','','PICTURE','','01-01-1970',{URL.split('.pdf')[0].split('/')[-1]},'01-01-1970',-1,-1,'01-01-1970')")
-                self.DB.Query(f"INSERT INTO transactions VALUES ('','PICTURE','','01-01-1970',{URL.split('.pdf')[0].split('/')[-1]},'01-01-1970',-1,-1,'01-01-1970')")
+
+
+            VersionInt = self.CheckXMLversion(XMLSTR)
+
+            Transactions = []
+            PageTransactions=[]
+            if VersionInt == 1:
+                PageTransactions = self.OldParse(XMLSTR)
+                FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
+            elif VersionInt == 2:
+                FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
+                pass
+            elif VersionInt == 0:
+                FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
+                self.DB.Query(f"INSERT INTO transactions VALUES ('','PICTURE','','01-01-1970',{FileIDfromUrl},-1,-1,'01-01-1970')")
                 continue
+            else:
+                pass
+
+            for TransDict in PageTransactions:
+                if TransDict['AMOUNT_LOW'] and TransDict['AMOUNT_HIGH'] and TransDict['NOTIF_DATE'] and TransDict['TRANS_DATE'] and TransDict['ASSET']  and TransDict['TRANTYPE']:
+                    # print(TransDict)
+                    #print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    # print(TransDict)
+            continue
+
+
 
             for x in range(len(t)):
                 t[x] = t[x].split("initial public offerings")[0]
@@ -155,7 +312,7 @@ class Transactions:
                     if y=='\n':
                         continue
                     Trans.append(y)
-            # print(Trans)
+            print(t)
             for x in range(len(Trans)):
                 DICT = {
                     'AMOUNT_LOW': None,
@@ -231,13 +388,15 @@ class Transactions:
                 #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
                 print(DICT)
                 Trans[x] = DICT
-            # print(Trans)
+
             if Trans == []:
                 t = XMLSTR.split("type date gains >\n$200?")[1].split('f s: new')
-                # print(t)
+                print(t)
                 for x in t:
-                    
                     Trans.append(x)
+                    
+
+
             # print(Trans)
             # print(XMLSTR)
             # print(self.Name(XMLSTR))
@@ -263,6 +422,6 @@ class Transactions:
                     # print('Sent')
                     self.DB.Query(f"INSERT INTO transactions VALUES ('','{DICT['ASSET']}','','01-01-1970',{DICT['FILID']},'01-01-1970',{DICT['AMOUNT_LOW']},{DICT['AMOUNT_HIGH']},'{DICT['NOTIF_DATE']}')")
 
-            # break
+            break
 
 Transactions()

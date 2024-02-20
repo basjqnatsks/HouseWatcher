@@ -41,7 +41,7 @@ class SQLP:
     def DoesTransDocExist(self,DociD):
         cur = self.connection.cursor()
         QUERY = f"select 1 from transactions where filingid = '{DociD}' limit 1"
-        print(QUERY)
+        # print(QUERY)
         res = cur.execute(QUERY)
         OUT =cur.fetchall()
         # for x in cur.fetchall():
