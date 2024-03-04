@@ -7,6 +7,7 @@ from io import BytesIO
 import pdfplumber
 from lxml import etree
 from dateutil.parser import parse
+from time import sleep
 import copy
 class Transactions:
     def __init__(self) -> None:
@@ -39,7 +40,17 @@ class Transactions:
         # print(self.URLS)
     @staticmethod
     def Downloadfile(URL):
-        return requests.get(URL)
+        #try to send reqeuest forever sleep every 10 seconds
+        while True:
+            try:
+                RTRE = requests.get(URL)
+            #print Exception
+            except Exception as f:
+                print(f)
+                sleep(10)
+            else:
+                break
+        return RTRE
     @staticmethod
     def UnzipBytes(byte):
         myzip = ZipFile(BytesIO(byte))
@@ -117,8 +128,6 @@ class Transactions:
         FS = open(FILENAME, 'wb')
         FS.write(content)
         FS.close()
-
-
     @staticmethod
     def PdftoText():
         XMLSTR = "" 
@@ -128,28 +137,16 @@ class Transactions:
                 XMLSTR += first_page.extract_text().lower()
         XMLSTR = XMLSTR.encode('ISO 8859-1', 'ignore').decode('ISO 8859-1','ignore')
         return XMLSTR
-    
-
     def OldParse(self, content):
         output = []
-
-
         TransSplit = content.split("type date\n")
-
         #delete before transactions
-
         del TransSplit[0]
-
-
         TransSplit[-1]  = TransSplit[-1].split("asset class details")[0]
-
         PreTransactions = []
-
         for TMP in TransSplit:
             for x in TMP.split('\n'):
                 PreTransactions.append(x )
-
-        
         #remove empties
         while True:
             try:
@@ -157,15 +154,12 @@ class Transactions:
             except:
                 break
         JustTransactions = []
-
         for x in range(len(PreTransactions)):
             if "filing status:" not in PreTransactions[x] and "subholding of:" not in PreTransactions[x] and "description:" not in PreTransactions[x]:
+                # print(PreTransactions[x])
                 if "$" in PreTransactions[x]:
                     JustTransactions.append(PreTransactions[x])
-
-
-
-
+        # print(JustTransactions)
         for x in JustTransactions:
             # print(x)
             DICT = {
@@ -177,41 +171,44 @@ class Transactions:
             'SUBHOLDING' : None,
             'TRANTYPE': None
             }
-
-        
             SplitOnDollar = x.split('$')
             JustDollars = SplitOnDollar[-2:]
             NoDollars = SplitOnDollar[0].strip()
+            print(NoDollars)
             NoDollarsSplitonSpace = NoDollars.split(' ')
-
-
-
+            # print(SplitOnDollar)
             #clean up dollars
             for io in range(len(JustDollars)):
                 JustDollars[io] = JustDollars[io].replace(',','').replace('-','').strip()
-            
             #clean up NoDollars
             for io in range(len(NoDollarsSplitonSpace)):
                 NoDollarsSplitonSpace[io] = NoDollarsSplitonSpace[io].strip()
-            
-
-            #find first date in list
-            for PotentialTradeDate in NoDollarsSplitonSpace:
-                if self.is_date(PotentialTradeDate):
-                    DICT['TRANS_DATE'] = PotentialTradeDate
-                    break
-
-
+            #find second last date
+           #find last date in list
+            psoie = 0 
+            for num in range(len(NoDollarsSplitonSpace)-1, -1, -1):
+                if self.is_date(NoDollarsSplitonSpace[num]):
+                    if psoie == 1:
+                        DICT['TRANS_DATE'] = NoDollarsSplitonSpace[num]
+                        break
+                    psoie += 1 
             #find last date in list
             for num in range(len(NoDollarsSplitonSpace)-1, -1, -1):
 
                 if self.is_date(NoDollarsSplitonSpace[num]):
                     DICT['NOTIF_DATE'] = NoDollarsSplitonSpace[num]
                     break
-
-            DICT['AMOUNT_LOW'] = JustDollars[0]
-            DICT['AMOUNT_HIGH'] = JustDollars[1]
-
+            # print(JustDollars)
+            try:
+                int(JustDollars[0])
+                DICT['AMOUNT_LOW'] = JustDollars[0]
+            except:
+                DICT['AMOUNT_LOW'] = -1
+            try :
+                int(JustDollars[1])
+                DICT['AMOUNT_HIGH'] = JustDollars[1]
+            except:
+                DICT['AMOUNT_HIGH'] = -1
             # print(DICT)
             try:
                 NoDollarsSplitonSpace.remove(DICT['NOTIF_DATE'])
@@ -221,22 +218,106 @@ class Transactions:
                 NoDollarsSplitonSpace.remove(DICT['TRANS_DATE'])
             except:
                 pass
-
-            DICT['TRANTYPE'] = NoDollarsSplitonSpace[-1]
+            #find last date in list
+            for num in range(len(NoDollarsSplitonSpace)-1, -1, -1):
+                if not self.is_date(NoDollarsSplitonSpace[num]) and len(NoDollarsSplitonSpace[num]) == 1:
+                    DICT['TRANTYPE'] = NoDollarsSplitonSpace[num]
+                    break
             NotCombinedAsset = NoDollarsSplitonSpace[:-1]
             AssetString = ''
             for pqpw in NotCombinedAsset:
                 AssetString += pqpw + ' '
-
             DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip()
-            
-            
-            # print(DICT)
+            print(DICT)
             output.append(DICT)
+        # print(output)
         return output
+    def NewParse(self, content):
+        output = []
+        #remove button out
+        content = content.replace('id owner asset transaction date notification amount cap.','').replace('gfedcb', 'gfedc').replace('gfedc\n', '')
+        TransSplit = content.split("type date gains >\n$200?")
+        #delete before transactions
+        del TransSplit[0]
+
+        #remove last element delimiter EOD
+        TransSplit[-1]  = TransSplit[-1].split("asset class details")[0]
+        PreTransactions = []
+        for TMP in TransSplit:
+            for x in TMP.split('\n'):
+                PreTransactions.append(x )
+        #remove empties
+        while True:
+            try:
+                PreTransactions.remove('')
+            except:
+                break
+        JustTransactions = []
+        for x in range(len(PreTransactions)):
+            if "filing status:" not in PreTransactions[x] and "subholding of:" not in PreTransactions[x] and "description:" not in PreTransactions[x]:
+                # print(PreTransactions[x])
+                if "$" in PreTransactions[x]:
+                    JustTransactions.append(PreTransactions[x])
+
+        for x in JustTransactions:
+
+            DICT = {
+            'AMOUNT_LOW': None,
+            'AMOUNT_HIGH': None,
+            'NOTIF_DATE' : None,
+            'TRANS_DATE' : None,
+            'ASSET' : None,
+            'SUBHOLDING' : None,
+            'TRANTYPE': None
+            }
+            SplitOnSpace = x.split(' ')
+            #JustDollars = SplitOnDollar[-2:]
+            #print(SplitOnSpace)
+
+            MoneyCounter = 0
+            for num in range(len(SplitOnSpace)-1, -1, -1):
+                if '$' in SplitOnSpace[num]:
+                    if MoneyCounter == 0:
+                        DICT['AMOUNT_LOW'] = SplitOnSpace[num].replace('$','')
+                    if MoneyCounter == 1:
+                        DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','')
+                    MoneyCounter += 1 
+            if not DICT['AMOUNT_HIGH']:
+                DICT['AMOUNT_HIGH'] = '-1'
 
 
+            NoDollars = x.split(DICT['AMOUNT_HIGH'])[0]
+            print(x)
+            NoDollarsSplitOnSpace = NoDollars.split(' ')
 
+            DateCounter = 0
+            for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
+                if self.is_date(NoDollarsSplitOnSpace[num]):
+                    if DateCounter == 0:
+                        DICT['NOTIF_DATE'] = NoDollarsSplitOnSpace[num]
+                    if DateCounter == 1:
+                        DICT['TRANS_DATE'] = NoDollarsSplitOnSpace[num]
+                    DateCounter += 1 
+
+            while True:
+                try:
+                    NoDollarsSplitOnSpace.remove('$')
+                except:
+                    break
+                            
+            for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
+                if not self.is_date(NoDollarsSplitOnSpace[num]) and len(NoDollarsSplitOnSpace[num]) == 1:
+                    DICT['TRANTYPE'] = NoDollarsSplitOnSpace[num]
+            #print(NoDollarsSplitOnSpace)
+            NoDollarsSplitOnSpace.remove(DICT['TRANTYPE'])
+            NoDollarsSplitOnSpace.remove(DICT['TRANS_DATE'])
+            NoDollarsSplitOnSpace.remove(DICT['NOTIF_DATE'])
+            #combine String 
+            AssetString = ''
+            for pqpw in NoDollarsSplitOnSpace:
+                AssetString += pqpw + ' '
+            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip()
+        return output
     @staticmethod
     def CheckXMLversion(content):
         if "type date gains >\n$200?" in content:
@@ -245,12 +326,11 @@ class Transactions:
             return 1
         if len(content) == 0:
             return 0
-
     def main(self):
         FILENAME = '__TMP__.pdf'
-
-        for x in range(876+15):
-            del self.URLS[0]
+        print(len(self.URLS))
+        # for x in range(876+15+19+3000+137+157):
+        #     del self.URLS[0]
 
         UrlIter=1
         #Iterate through all premade urls
@@ -269,13 +349,14 @@ class Transactions:
 
 
             VersionInt = self.CheckXMLversion(XMLSTR)
-
+            # print(VersionInt)
             Transactions = []
             PageTransactions=[]
             if VersionInt == 1:
                 PageTransactions = self.OldParse(XMLSTR)
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
             elif VersionInt == 2:
+                PageTransactions = self.NewParse(XMLSTR)
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
                 pass
             elif VersionInt == 0:
@@ -288,8 +369,8 @@ class Transactions:
             for TransDict in PageTransactions:
                 if TransDict['AMOUNT_LOW'] and TransDict['AMOUNT_HIGH'] and TransDict['NOTIF_DATE'] and TransDict['TRANS_DATE'] and TransDict['ASSET']  and TransDict['TRANTYPE']:
                     # print(TransDict)
-                    #print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
-                    self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    #self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
                     # print(TransDict)
             continue
 

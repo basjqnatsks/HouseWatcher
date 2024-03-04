@@ -4,8 +4,30 @@ from sql_postgre import SQLP
 import xmltodict
 from zipfile import ZipFile
 from io import BytesIO
+
+import os
+
+
+# Import the email modules we'll need
+from email.message import EmailMessage
+import smtplib
+
+from time import sleep
+
+
+
 class FinanceDisclosure:
     def __init__(self) -> None:
+        self.EmailList = [
+            '5095288130@vtext.com',
+            '5092822020@vtext.com',
+            '5095670431@vtext.com',
+            '5094400337@vtext.com',
+            '5097135671@txt.att.net',
+            '5095540049@tmomail.net',
+            '2027654320@txt.att.net',
+        ]
+        # self.SendEmail('Tewst')
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
@@ -32,6 +54,21 @@ class FinanceDisclosure:
                 self.URLS.append(self.Url(year))
         #print(self.URLS)
 
+    def SendEmail(self, messagwe):
+        s = smtplib.SMTP('smtp.gmail.com', 587)
+        s.starttls()
+        s.login("tutt21730@gmail.com", "nywd azmo nivs oyno")
+
+        
+        MSGS = messagwe
+        for x in self.EmailList:
+            msg = EmailMessage()
+            msg['Subject'] = ""
+            msg['From'] = "tutt21730@gmail.com"
+            msg['To'] = x
+            msg.set_content(MSGS)
+            s.send_message(msg)
+
 
     @staticmethod
     def Downloadfile(URL):
@@ -56,7 +93,9 @@ class FinanceDisclosure:
                 StringDict[x] = StringDict[x].replace('"','').replace("'",'')
             except:
                 pass
-
+    @staticmethod
+    def TUrl(Year: int, doc) -> str:
+        return f'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{str(Year)}/{str(doc)}.pdf'
 
     def Run(self):
         #self.DB.ClearDB()
@@ -86,6 +125,12 @@ class FinanceDisclosure:
                         # print(Member)
                         if not Member['FilingDate']:
                             Member['FilingDate'] = '01-01-1970'
+                        
+                        if Member['FilingType'].lower() == 'p':
+                            self.SendEmail(f"""{Member['Last']} {self.TUrl(Member['Year'],Member['DocID'])}""")
+                            print(f"""{Member['First']} {Member['Last']} Trade At {self.TUrl(Member['Year'],Member['DocID'])}""")
+                        sleep(10)
                         self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
         # #DB.PrintAllTables()
+                        
 FinanceDisclosure()
