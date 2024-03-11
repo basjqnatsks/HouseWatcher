@@ -235,7 +235,7 @@ class Transactions:
     def NewParse(self, content):
         output = []
         #remove button out
-        content = content.replace('id owner asset transaction date notification amount cap.','').replace('gfedcb', 'gfedc').replace('gfedc\n', '')
+        content = content.replace('id owner asset transaction date notification amount cap.','').replace('(partial)','')
         TransSplit = content.split("type date gains >\n$200?")
         #delete before transactions
         del TransSplit[0]
@@ -256,11 +256,11 @@ class Transactions:
         for x in range(len(PreTransactions)):
             if "filing status:" not in PreTransactions[x] and "subholding of:" not in PreTransactions[x] and "description:" not in PreTransactions[x]:
                 # print(PreTransactions[x])
-                if "$" in PreTransactions[x]:
-                    JustTransactions.append(PreTransactions[x])
+                if "$" in PreTransactions[x] and len(PreTransactions[x]) > 20 and 'gfe' in PreTransactions[x]:
+                    JustTransactions.append(PreTransactions[x].replace('gfedcb', 'gfedc').replace('gfedc\n', ''))
 
         for x in JustTransactions:
-
+            
             DICT = {
             'AMOUNT_LOW': None,
             'AMOUNT_HIGH': None,
@@ -277,25 +277,24 @@ class Transactions:
             MoneyCounter = 0
             for num in range(len(SplitOnSpace)-1, -1, -1):
                 if '$' in SplitOnSpace[num]:
-                    if MoneyCounter == 0:
-                        DICT['AMOUNT_LOW'] = SplitOnSpace[num].replace('$','')
-                    if MoneyCounter == 1:
-                        DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','')
+                    if MoneyCounter == 0 and not DICT['AMOUNT_LOW']:
+                        DICT['AMOUNT_LOW'] = SplitOnSpace[num].replace('$','').replace(',','')
+                    if MoneyCounter == 1 and not DICT['AMOUNT_HIGH']:
+                        DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','').replace(',','')
                     MoneyCounter += 1 
             if not DICT['AMOUNT_HIGH']:
                 DICT['AMOUNT_HIGH'] = '-1'
 
 
             NoDollars = x.split(DICT['AMOUNT_HIGH'])[0]
-            print(x)
             NoDollarsSplitOnSpace = NoDollars.split(' ')
 
             DateCounter = 0
             for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
                 if self.is_date(NoDollarsSplitOnSpace[num]):
-                    if DateCounter == 0:
+                    if DateCounter == 0 and not DICT['NOTIF_DATE']:
                         DICT['NOTIF_DATE'] = NoDollarsSplitOnSpace[num]
-                    if DateCounter == 1:
+                    if DateCounter == 1 and not DICT['TRANS_DATE']:
                         DICT['TRANS_DATE'] = NoDollarsSplitOnSpace[num]
                     DateCounter += 1 
 
@@ -304,22 +303,117 @@ class Transactions:
                     NoDollarsSplitOnSpace.remove('$')
                 except:
                     break
-                            
+            
             for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
-                if not self.is_date(NoDollarsSplitOnSpace[num]) and len(NoDollarsSplitOnSpace[num]) == 1:
+                if not self.is_date(NoDollarsSplitOnSpace[num]) and len(NoDollarsSplitOnSpace[num]) == 1 and NoDollarsSplitOnSpace[num] in ['p', 's', 'a','e']:
                     DICT['TRANTYPE'] = NoDollarsSplitOnSpace[num]
-            #print(NoDollarsSplitOnSpace)
-            NoDollarsSplitOnSpace.remove(DICT['TRANTYPE'])
-            NoDollarsSplitOnSpace.remove(DICT['TRANS_DATE'])
-            NoDollarsSplitOnSpace.remove(DICT['NOTIF_DATE'])
+                    break
+
+
             #combine String 
             AssetString = ''
             for pqpw in NoDollarsSplitOnSpace:
                 AssetString += pqpw + ' '
-            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip()
+            print(AssetString)
+            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
+            print(DICT)
+            output.append(DICT)
+        return output
+    def NewNullParse(self, content):
+        output = []
+        #remove button out
+        content = content.replace('id owner asset transaction date notification amount cap.','').replace('(partial)','').replace('\x00','')
+        TransSplit = content.split("type date gains >\n$200?")
+        #delete before transactions
+        del TransSplit[0]
+
+        #remove last element delimiter EOD
+        TransSplit[-1]  = TransSplit[-1].split("* for the complete list of asset type abbreviations")[0]
+        PreTransactions = []
+        for TMP in TransSplit:
+            for x in TMP.split('\n'):
+                PreTransactions.append(x )
+        # print(PreTransactions)
+        #remove empties
+        while True:
+            try:
+                PreTransactions.remove('')
+            except:
+                break
+        JustTransactions = []
+        for x in range(len(PreTransactions)):
+            if "filing status:" not in PreTransactions[x] and "subholding of:" not in PreTransactions[x] and "description:" not in PreTransactions[x]:
+                # print(PreTransactions[x])
+                if "$" in PreTransactions[x] and len(PreTransactions[x]) > 20 :
+                    JustTransactions.append(PreTransactions[x].replace('gfedcb', 'gfedc').replace('gfedc\n', ''))
+        print(JustTransactions)
+        for x in JustTransactions:
+            
+            DICT = {
+            'AMOUNT_LOW': None,
+            'AMOUNT_HIGH': None,
+            'NOTIF_DATE' : None,
+            'TRANS_DATE' : None,
+            'ASSET' : None,
+            'SUBHOLDING' : None,
+            'TRANTYPE': None
+            }
+            SplitOnSpace = x.split(' ')
+            #JustDollars = SplitOnDollar[-2:]
+            #print(SplitOnSpace)
+
+            MoneyCounter = 0
+            for num in range(len(SplitOnSpace)-1, -1, -1):
+                if '$' in SplitOnSpace[num]:
+                    if MoneyCounter == 0 and not DICT['AMOUNT_LOW']:
+                        DICT['AMOUNT_LOW'] = SplitOnSpace[num].replace('$','').replace(',','')
+                    if MoneyCounter == 1 and not DICT['AMOUNT_HIGH']:
+                        DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','').replace(',','')
+                    MoneyCounter += 1 
+            if not DICT['AMOUNT_HIGH']:
+                DICT['AMOUNT_HIGH'] = '-1'
+
+
+            NoDollars = x.split(DICT['AMOUNT_HIGH'])[0]
+            NoDollarsSplitOnSpace = NoDollars.split(' ')
+
+            DateCounter = 0
+            for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
+                if self.is_date(NoDollarsSplitOnSpace[num]):
+                    if DateCounter == 0 and not DICT['NOTIF_DATE']:
+                        DICT['NOTIF_DATE'] = NoDollarsSplitOnSpace[num]
+                    if DateCounter == 1 and not DICT['TRANS_DATE']:
+                        DICT['TRANS_DATE'] = NoDollarsSplitOnSpace[num]
+                    DateCounter += 1 
+
+            while True:
+                try:
+                    NoDollarsSplitOnSpace.remove('$')
+                except:
+                    break
+            
+            for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
+                if not self.is_date(NoDollarsSplitOnSpace[num]) and len(NoDollarsSplitOnSpace[num]) == 1 and NoDollarsSplitOnSpace[num] in ['p', 's', 'a','e']:
+                    DICT['TRANTYPE'] = NoDollarsSplitOnSpace[num]
+                    break
+
+
+            #combine String 
+            AssetString = ''
+            for pqpw in NoDollarsSplitOnSpace:
+                AssetString += pqpw + ' '
+            print(NoDollarsSplitOnSpace)
+            try:
+                DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
+            except TypeError:
+                DICT['ASSET'] = None
+            print(DICT)
+            output.append(DICT)
         return output
     @staticmethod
     def CheckXMLversion(content):
+        if "type date gains >\n$200?" in content and not 'gfe'in content:
+            return 3
         if "type date gains >\n$200?" in content:
             return 2
         if "type date" in content:
@@ -329,7 +423,8 @@ class Transactions:
     def main(self):
         FILENAME = '__TMP__.pdf'
         print(len(self.URLS))
-        # for x in range(876+15+19+3000+137+157):
+        return
+        # for x in range(1695+16+37):
         #     del self.URLS[0]
 
         UrlIter=1
@@ -358,151 +453,24 @@ class Transactions:
             elif VersionInt == 2:
                 PageTransactions = self.NewParse(XMLSTR)
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
-                pass
+            elif VersionInt == 3:
+                PageTransactions = self.NewNullParse(XMLSTR)
+                FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
             elif VersionInt == 0:
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
                 self.DB.Query(f"INSERT INTO transactions VALUES ('','PICTURE','','01-01-1970',{FileIDfromUrl},-1,-1,'01-01-1970')")
                 continue
             else:
                 pass
-
+            
             for TransDict in PageTransactions:
                 if TransDict['AMOUNT_LOW'] and TransDict['AMOUNT_HIGH'] and TransDict['NOTIF_DATE'] and TransDict['TRANS_DATE'] and TransDict['ASSET']  and TransDict['TRANTYPE']:
-                    # print(TransDict)
-                    print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
-                    #self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    #print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
                     # print(TransDict)
             continue
-
-
-
-            for x in range(len(t)):
-                t[x] = t[x].split("initial public offerings")[0]
-                t[x] =t[x].split('filing status: new')
-                # print(len(t[x]))
-                if len(t[x]) == 1:
-                    t[x] = t[x][0]
-                    t[x].split('filing status: amended')
-                else:
-                    del t[x][-1]
             
-            Trans = []
-            for x in t:
-                # print(x)
-                for y in x:
-                    if y=='\n':
-                        continue
-                    Trans.append(y)
-            print(t)
-            for x in range(len(Trans)):
-                DICT = {
-                    'AMOUNT_LOW': None,
-                    'AMOUNT_HIGH': None,
-                    'NOTIF_DATE' : None,
-                    'TRANS_DATE' : None,
-                    'ASSET' : None,
-                    'SUBHOLDING' : None,
-                }
-                TransString = Trans[x]
-                # print('!'+TransString+'!')
-                try:
-                    tza = TransString.split('$')
-                except:
-                    continue
-                CON = 1
-                #print(tza)
-                for z in tza:
-                    # print(z)
-                    try:
-                        z.split(' s ')[1]
-                        DATES = z.split(' s ')[-1].strip().split(' ')
-                        CON = None
-                        break
-                    except:
-                        try:
-                            z.split(' p ')[1]
-                            DATES = z.split(' p ')[-1].strip().split(' ')
-                            CON = None
-                            break
-                        except:
-                            try:
-                                z.split(' e ')[1]
-                                DATES = z.split(' e ')[-1].strip().split(' ')
-                                CON = None
-                                break
-                            except:
-                                pass
-                            #print(TransString.split('$')[:-2][-1].split('\n'))
-                            #del ENDSTRING[-1]
-                #print(TransString)  
-                #print(z.split(' s ')[-1])
-                if CON:
-                    #print('CON')
-                    continue
-                #print(DATES)
-                TYU = TransString.split('$')
-                if len(''.join(i for i in TYU[-1] if i.isdigit())) == 0:
-                    del TYU[-1]
-                #print(TYU)
-                DICT['TRANS_DATE'] = DATES[0]
-                DICT['NOTIF_DATE'] = DATES[1]
-                DICT['AMOUNT_HIGH'] = int(''.join(i for i in TYU[-1] if i.isdigit()))
-                DICT['AMOUNT_LOW'] = int(''.join(i for i in TYU[-2] if i.isdigit()))
-                print(TYU)
-                while len(TYU) > 1:
-                    del TYU[-1]
-                tza = TYU
-                ENDSTRING = tza[-1].split('\n')[-1]
-                
-                ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
-                if ASSET_TEMP == '':
-                    TYU = TransString.split('$')
-                    del TYU[0]
-                    while len(TYU) > 1:
-                        del TYU[-1]
-                    tza = TYU
-                    ENDSTRING = tza[-1].split('\n')[-1]
-                    ASSET_TEMP = ENDSTRING.split(' s ')[0].split(' p ')[0].split(' e ')[0]
-
-                DICT['ASSET'] = ASSET_TEMP
-
-                #print(re.search(r'\d{2}/\d{2}/\d{2}', ASSET_TEMP))
-                print(DICT)
-                Trans[x] = DICT
-
-            if Trans == []:
-                t = XMLSTR.split("type date gains >\n$200?")[1].split('f s: new')
-                print(t)
-                for x in t:
-                    Trans.append(x)
-                    
 
 
-            # print(Trans)
-            # print(XMLSTR)
-            # print(self.Name(XMLSTR))
-            # print(self.DistrictState(XMLSTR))
-            DICT['FILID'] = self.FilingId(XMLSTR)
-            #print(self.TransactionNameList(XMLSTR))
-            # t = self.TransactionsDict(XMLSTR)
-           #INSERT INTO transactions VALUES ('','','','','','jt apple inc. (aapl)','',)
-            print(DICT)
-            # print(self.is_date(str(DICT['NOTIF_DATE'])))
-            if DICT['ASSET'] and DICT['ASSET'] != '' and DICT['FILID'] and DICT['AMOUNT_HIGH'] and DICT['AMOUNT_LOW'] and DICT['NOTIF_DATE']:
-                DICT['ASSET']= DICT['ASSET'].replace("'",'')
-                try:
-                    int(DICT['AMOUNT_LOW'])
-                    int(DICT['AMOUNT_HIGH'])
-                    int(DICT['FILID'])
-                    
-                except:
-                    # print('Skip')
-                    continue
-                if DICT['AMOUNT_HIGH'] < 150010600 and  DICT['AMOUNT_LOW'] < 150010600 and self.is_date(str(DICT['NOTIF_DATE'])):
-                    # print(DICT['NOTIF_DATE'])
-                    # print('Sent')
-                    self.DB.Query(f"INSERT INTO transactions VALUES ('','{DICT['ASSET']}','','01-01-1970',{DICT['FILID']},'01-01-1970',{DICT['AMOUNT_LOW']},{DICT['AMOUNT_HIGH']},'{DICT['NOTIF_DATE']}')")
-
-            break
 
 Transactions()
