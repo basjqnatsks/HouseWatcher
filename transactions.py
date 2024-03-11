@@ -423,7 +423,7 @@ class Transactions:
     def main(self):
         FILENAME = '__TMP__.pdf'
         print(len(self.URLS))
-        return
+        # return
         # for x in range(1695+16+37):
         #     del self.URLS[0]
 
