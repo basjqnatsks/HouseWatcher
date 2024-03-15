@@ -174,7 +174,7 @@ class Transactions:
             SplitOnDollar = x.split('$')
             JustDollars = SplitOnDollar[-2:]
             NoDollars = SplitOnDollar[0].strip()
-            print(NoDollars)
+            #print(NoDollars)
             NoDollarsSplitonSpace = NoDollars.split(' ')
             # print(SplitOnDollar)
             #clean up dollars
@@ -228,7 +228,7 @@ class Transactions:
             for pqpw in NotCombinedAsset:
                 AssetString += pqpw + ' '
             DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip()
-            print(DICT)
+            #print(DICT)
             output.append(DICT)
         # print(output)
         return output
@@ -314,9 +314,9 @@ class Transactions:
             AssetString = ''
             for pqpw in NoDollarsSplitOnSpace:
                 AssetString += pqpw + ' '
-            print(AssetString)
+            #print(AssetString)
             DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
-            print(DICT)
+            #print(DICT)
             output.append(DICT)
         return output
     def NewNullParse(self, content):
@@ -346,7 +346,7 @@ class Transactions:
                 # print(PreTransactions[x])
                 if "$" in PreTransactions[x] and len(PreTransactions[x]) > 20 :
                     JustTransactions.append(PreTransactions[x].replace('gfedcb', 'gfedc').replace('gfedc\n', ''))
-        print(JustTransactions)
+        #print(JustTransactions)
         for x in JustTransactions:
             
             DICT = {
@@ -402,12 +402,12 @@ class Transactions:
             AssetString = ''
             for pqpw in NoDollarsSplitOnSpace:
                 AssetString += pqpw + ' '
-            print(NoDollarsSplitOnSpace)
+            #print(NoDollarsSplitOnSpace)
             try:
                 DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
             except TypeError:
                 DICT['ASSET'] = None
-            print(DICT)
+            #print(DICT)
             output.append(DICT)
         return output
     @staticmethod
