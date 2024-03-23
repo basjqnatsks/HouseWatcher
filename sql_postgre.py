@@ -51,7 +51,7 @@ class SQLP:
 
     def Insert(self, table, values):
         __C = self.connection.cursor()
-        print(f"INSERT INTO {table} VALUES ({values})")
+        #print(f"INSERT INTO {table} VALUES ({values})")
         __C.execute(f"INSERT INTO {table} VALUES ({values})")
         self.connection.commit()
         #self.Refresh()
