@@ -34,8 +34,8 @@ class yprices:
                 var[y] = var[y].split(',')
                 #print(var[y])
                 if var[y] != [''] and datetime.datetime.strptime(var[y][0], '%Y-%m-%d').date() in self.CalDateList:
-                    print('inserted')
-                    #self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '')}'")
+                    #print('inserted')
+                    self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '')}'")
 
                 #print(y)
     @staticmethod
@@ -79,7 +79,7 @@ class yprices:
         self.TickerList = self.GetTickerList()
         for x in self.TickerList:
             try:
-                yf.download( x[0], '1900-01-01', '2025-01-01').to_csv(f'{self.Directory}/{ x[0]}.csv')
+                yf.download( x[0], '1950-01-01', '2025-01-01').to_csv(f'{self.Directory}/{ x[0]}.csv')
             except Exception as f:
                 print(f)
 
@@ -102,3 +102,4 @@ class yprices:
         self.DB.Close()
 
 
+yprices().UploadFromDisk()
