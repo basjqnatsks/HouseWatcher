@@ -3,26 +3,40 @@ from sql_postgre import SQLP
 from read import read
 import os
 import requests
-
-
+import pandas_market_calendars as mcal
+import datetime
 class yprices:
     def __init__(self) -> None:
         self.Directory = 'yfinance\\'
         self.DB = SQLP("house")
-        self.UploadFromDisk()
+        self.GenerateCalender()
+        #self.UploadFromDisk()
         #self.PopulateAllPrices()
-        self.DB.Close()
+
+    def GenerateCalender(self):
+        # Create a calendar
+        nyse = mcal.get_calendar('NASDAQ')
+
+        # Show available calendars
+        #print(mcal.get_calendar_names())
+        early = nyse.schedule(start_date='1900-01-01', end_date='2100-01-01')
+        self.CalDateList = []
+        for x in early.iloc[:, 0].items():
+            self.CalDateList.append(x[0].date())
+        
 
     def UploadFromDisk(self):
         for x in os.listdir(self.Directory):
             var  = read(self.Directory+ x, '\n')
             del var[0]
+            
             for y in range(len(var)):
                 var[y] = var[y].split(',')
-                try:
-                    self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '')}'")
-                except:
-                    pass
+                #print(var[y])
+                if var[y] != [''] and datetime.datetime.strptime(var[y][0], '%Y-%m-%d').date() in self.CalDateList:
+                    print('inserted')
+                    #self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '')}'")
+
                 #print(y)
     @staticmethod
     def DeleteFolder(dir):
@@ -69,7 +83,22 @@ class yprices:
             except Exception as f:
                 print(f)
 
+    def PopulateRangePrice(self,ticker, BeginRange, EndRange):
+
+        self.DeleteFolder(self.Directory)
+        try:
+            os.mkdir(self.Directory)
+        except:
+            pass
+        try:
+
+            yf.download(ticker, BeginRange, EndRange).to_csv(f'{self.Directory}/{ ticker}.csv')
+        except Exception as f:
+            print(f)
+
+        self.UploadFromDisk()
+
+    def __del__(self) -> None:
+        self.DB.Close()
 
 
-
-yprices()
