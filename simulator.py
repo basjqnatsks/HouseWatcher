@@ -71,4 +71,59 @@ class simulate:
 
         #return (SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2))
 
-simulate('aapl', '01-01-2010', '03-31-2024',1000)
+class SimulateCongress:
+    
+    def __init__(self) -> None:
+        self.DB = SQLP("house")
+        QueryLsit = []
+        Wallet = {}
+        Qstring = """
+select  trantype,asset,transdate,lastname,statedistrict
+from public.transactions
+join financialdisclosure on filingid = docid
+where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate'
+order by transdate asc
+"""
+        for x in self.DB.Query(Qstring):
+            QueryLsit.append(x)
+
+
+        for x in range(len(QueryLsit)):
+            QueryLsit[x] = list(QueryLsit[x])
+            QueryLsit[x][1] = QueryLsit[x][1].split('(')[1].split(')')[0]
+            QueryLsit[x][3] += QueryLsit[x][4]
+            del QueryLsit[x][-1]
+            Wallet[QueryLsit[x][-1]] = {
+                'position': [],
+                'amount': 0
+            }
+
+        for x in QueryLsit:
+            if x[0] == 'p':
+                Wallet[x]['position'].append(x[1])
+
+            print(QueryLsit[x])
+        
+        
+        print(len(QueryLsit))
+
+
+
+        
+
+
+
+
+
+
+
+
+
+    def __del__(self) -> None:
+        self.DB.Close()
+
+
+
+
+SimulateCongress()
+#simulate('aapl', '01-01-2010', '03-31-2024',1000)
