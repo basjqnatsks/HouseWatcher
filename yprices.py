@@ -5,10 +5,12 @@ import os
 import requests
 import pandas_market_calendars as mcal
 import datetime
+from time import time
 class yprices:
-    def __init__(self) -> None:
+    def __init__(self, sqldbconn = None) -> None:
         self.Directory = 'yfinance\\'
-        self.DB = SQLP("house")
+        if not sqldbconn:
+            self.DB = SQLP("house")
         self.GenerateCalender()
         #self.UploadFromDisk()
         #self.PopulateAllPrices()
@@ -23,7 +25,7 @@ class yprices:
         self.CalDateList = []
         for x in early.iloc[:, 0].items():
             self.CalDateList.append(x[0].date())
-        
+
 
     def UploadFromDisk(self):
         for x in os.listdir(self.Directory):
@@ -102,5 +104,5 @@ class yprices:
 
         self.UploadFromDisk()
 
-    def __del__(self) -> None:
-        self.DB.Close()
+    # def __del__(self) -> None:
+    #     self.DB.Close()

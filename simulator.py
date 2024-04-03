@@ -1,11 +1,17 @@
 from sql_postgre import SQLP
 import datetime
 from yprices import yprices
+from time import time
+import pandas_market_calendars as mcal
 class simulate:
 
 
 
-    def __init__(self,Security,BuyDate,SellDate,Amount,sqlconn=None) -> None:
+    def __init__(self,Security,BuyDate,SellDate,Amount,sqlconn=None,cal = None) -> None:
+
+        if cal:
+            self.cal = cal
+
         if not sqlconn:
             self.DB = SQLP("house")
         else:
@@ -14,6 +20,7 @@ class simulate:
             BuyDateOfWeek = datetime.datetime.strptime(BuyDate, '%m-%d-%Y').weekday()
         SellDateOfWeek = datetime.datetime.strptime(SellDate, '%m-%d-%Y').weekday()
         Today = datetime.datetime.today()
+
         MostRecentDate = self.GetRecentDate(Security)
 
         DaysOfWeek = [1,2,3,4,5]
@@ -25,14 +32,16 @@ class simulate:
         #(Price Difference, Multiply, Total Amount)
         #PopulateRangePrice(Security,SellDate,Today)
 
-    
-        print(MostRecentDate)
+        
+
+
+        
+
         if MostRecentDate != self.GetLastMarketDay() and MostRecentDate < datetime.datetime.strptime(SellDate, '%m-%d-%Y').date():
             print('not up dto date')
             MostRecentDatePlusOneDay = MostRecentDate + datetime.timedelta(days=1)
             yprices().PopulateRangePrice(Security,MostRecentDatePlusOneDay,Today.date())
-
-
+        
         #get Buy
         BuyPrice = self.GetBuyPrice(Security,BuyDate)
 
@@ -48,12 +57,16 @@ class simulate:
         if not sqlconn:
             self.DB.Close()
         
-
     def GetLastMarketDay(self):
+        
         Today = datetime.datetime.today().date() - datetime.timedelta(days=1)
-        CalList= yprices().CalDateList
-        while Today not in CalList:
+        
+        #CalList= yprices().CalDateList
+        
+        while Today not in self.cal:
             Today -= datetime.timedelta(days=1)
+        
+        
         return Today
 
     def GetRecentDate(self,Security):
@@ -76,8 +89,21 @@ class simulate:
         #return (SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2))
 
 class SimulateCongress:
-    
+    def GenerateCalender(self):
+        # Create a calendar
+        nyse = mcal.get_calendar('NASDAQ')
+
+        # Show available calendars
+        #print(mcal.get_calendar_names())
+        early = nyse.schedule(start_date='1900-01-01', end_date='2100-01-01')
+        self.CalDateList = []
+        for x in early.iloc[:, 0].items():
+            self.CalDateList.append(x[0].date())
+
+
+
     def __init__(self) -> None:
+        self.GenerateCalender()
         self.DB = SQLP("house")
         QueryLsit = []
         Wallet = {}
@@ -106,7 +132,8 @@ order by transdate asc
             avglist[x] = []
             for y in range(len(Wallet[x])):
                 try:
-                    Wallet[x][y] = simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB)
+                    #print(cal)
+                    Wallet[x][y] = simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB, self.CalDateList)
                     avglist[x].append(Wallet[x][y][1])
                      
                 except:
