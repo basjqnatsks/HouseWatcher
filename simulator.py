@@ -5,9 +5,13 @@ class simulate:
 
 
 
-    def __init__(self,Security,BuyDate,SellDate,Amount) -> None:
-        self.DB = SQLP("house")
-        BuyDateOfWeek = datetime.datetime.strptime(BuyDate, '%m-%d-%Y').weekday()
+    def __init__(self,Security,BuyDate,SellDate,Amount,sqlconn=None) -> None:
+        if not sqlconn:
+            self.DB = SQLP("house")
+        else:
+            self.DB = sqlconn
+        if type(BuyDate) == str:
+            BuyDateOfWeek = datetime.datetime.strptime(BuyDate, '%m-%d-%Y').weekday()
         SellDateOfWeek = datetime.datetime.strptime(SellDate, '%m-%d-%Y').weekday()
         Today = datetime.datetime.today()
         MostRecentDate = self.GetRecentDate(Security)
@@ -41,8 +45,8 @@ class simulate:
         #self.test(Security,BuyDate,SellDate,Amount)
 
 
-
-        self.DB.Close()
+        if not sqlconn:
+            self.DB.Close()
         
 
     def GetLastMarketDay(self):
@@ -81,7 +85,7 @@ class SimulateCongress:
 select  trantype,asset,transdate,lastname,statedistrict
 from public.transactions
 join financialdisclosure on filingid = docid
-where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate'
+where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p'
 order by transdate asc
 """
         for x in self.DB.Query(Qstring):
@@ -93,19 +97,24 @@ order by transdate asc
             QueryLsit[x][1] = QueryLsit[x][1].split('(')[1].split(')')[0]
             QueryLsit[x][3] += QueryLsit[x][4]
             del QueryLsit[x][-1]
-            Wallet[QueryLsit[x][-1]] = {
-                'position': [],
-                'amount': 0
-            }
+            Wallet[QueryLsit[x][-1]] = []
 
         for x in QueryLsit:
-            if x[0] == 'p':
-                Wallet[x]['position'].append(x[1])
-
-            print(QueryLsit[x])
+            Wallet[x[-1]].append([x[1], x[2]])
+        avglist = {}
+        for x in Wallet:
+            avglist[x] = []
+            for y in range(len(Wallet[x])):
+                try:
+                    Wallet[x][y] = simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB)
+                    avglist[x].append(Wallet[x][y][1])
+                     
+                except:
+                    pass
+                print(y)
         
         
-        print(len(QueryLsit))
+        print(Wallet)
 
 
 
@@ -126,4 +135,4 @@ order by transdate asc
 
 
 SimulateCongress()
-#simulate('aapl', '01-01-2010', '03-31-2024',1000)
+#simulate('intc', '01-01-2000', '04-01-2024',1000)

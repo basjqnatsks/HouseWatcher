@@ -40,18 +40,22 @@ class yprices:
                 #print(y)
     @staticmethod
     def DeleteFolder(dir):
+        print('del')
         try:
             for x in os.listdir(dir):
                 try:
-                    os.remove(x)
-                except:
+                    os.remove(dir+x)
+                except Exception as df:
                     pass
-        except:
+                    #print(df)
+        except Exception as df:
             pass
+            #print(df)
         try:
             os.mkdir(dir)
-        except:
+        except Exception as df:
             pass
+            #print(df)
 
 
     def GetTickerList(self):
@@ -100,6 +104,3 @@ class yprices:
 
     def __del__(self) -> None:
         self.DB.Close()
-
-
-yprices().UploadFromDisk()
