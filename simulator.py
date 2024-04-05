@@ -5,7 +5,7 @@ from time import time
 import pandas_market_calendars as mcal
 class simulate:
 
-
+    
 
     def __init__(self,Security,BuyDate,SellDate,Amount,sqlconn=None,cal = None) -> None:
 
@@ -38,6 +38,8 @@ class simulate:
         
 
         if MostRecentDate != self.GetLastMarketDay() and MostRecentDate < datetime.datetime.strptime(SellDate, '%m-%d-%Y').date():
+            self.RT =  (0,1,0)
+            return
             print('not up dto date')
             MostRecentDatePlusOneDay = MostRecentDate + datetime.timedelta(days=1)
             yprices().PopulateRangePrice(Security,MostRecentDatePlusOneDay,Today.date())
@@ -49,8 +51,8 @@ class simulate:
         SellPrice = self.GetSellPrice(Security,SellDate)
 
 
-
-        print((SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2)))
+        self.RT = (SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2))
+        #print((SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2)))
         #self.test(Security,BuyDate,SellDate,Amount)
 
 
@@ -133,15 +135,19 @@ order by transdate asc
             for y in range(len(Wallet[x])):
                 try:
                     #print(cal)
-                    Wallet[x][y] = simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB, self.CalDateList)
+                    Wallet[x][y] = simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB, self.CalDateList).RT
                     avglist[x].append(Wallet[x][y][1])
-                     
+                    
                 except:
                     pass
                 print(y)
-        
-        
-        print(Wallet)
+        with open('out.csv', 'w') as f:
+            for pop in avglist:
+                f.write(pop+',')
+                for too in avglist[pop]:
+                    f.write(str(too)+',')
+                f.write('\n')
+        print(avglist)
 
 
 
