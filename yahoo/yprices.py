@@ -1,5 +1,5 @@
 import yfinance as yf
-from sql_postgre import SQLP
+from ..sql_postgre import SQLP
 from read import read
 import os
 import requests

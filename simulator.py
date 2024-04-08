@@ -7,7 +7,7 @@ class simulate:
 
     def __init__(self,Security,BuyDate,SellDate,Amount) -> None:
         self.DB = SQLP("house")
-        self.
+        
 
         self.DB.Close()
         
