@@ -1,17 +1,12 @@
 import requests
 import datetime
-from sql_postgre import SQLP
+from sql import sql_postgre 
 import xmltodict
 from zipfile import ZipFile
 from io import BytesIO
-
-import os
-
-
 # Import the email modules we'll need
 from email.message import EmailMessage
 import smtplib
-
 from time import sleep
 
 
@@ -31,7 +26,7 @@ class FinanceDisclosure:
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
-        self.DB = SQLP("house")
+        self.DB = sql_postgre.SQLP("house")
 
         self.GenerateURLS()
 
@@ -134,3 +129,4 @@ class FinanceDisclosure:
         # #DB.PrintAllTables()
                         
 FinanceDisclosure()
+

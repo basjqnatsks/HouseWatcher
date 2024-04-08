@@ -30,3 +30,13 @@
 # print("Data from Database:- ", record)
 
 # T = Transactions()
+
+
+
+
+
+import sys
+
+if __name__ == "__main__":
+    print ('argument list', sys.argv)
+    name = sys.argv[1]

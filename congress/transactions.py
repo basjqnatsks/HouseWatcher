@@ -1,20 +1,19 @@
 import requests
 import datetime
-from sql_postgre import SQLP
-import json
+from sql import sql_postgre
 from zipfile import ZipFile
 from io import BytesIO
+import pathlib
 import pdfplumber
-from lxml import etree
 from dateutil.parser import parse
 from time import sleep
-import copy
 class Transactions:
     def __init__(self) -> None:
         self.FirstYear = 2008
         self.CurrentYear = int(datetime.date.today().year)
         self.URLS = []
-        self.DB = SQLP("house")
+        self.WorkingDir = str(pathlib.Path(__file__).parent.resolve())
+        self.DB = sql_postgre.SQLP("house")
 
         self.GenerateURLS()
         self.main()
@@ -124,14 +123,15 @@ class Transactions:
         return XMLSTR.split('filing id')[1].split('\n')[0].strip().replace('#','')
     @staticmethod
     def __dumppdf(content):
-        FILENAME = '__TMP__.pdf'
+        FILENAME = str(pathlib.Path(__file__).parent.resolve()) + '\\temp\\__TMP__.pdf'
         FS = open(FILENAME, 'wb')
         FS.write(content)
         FS.close()
     @staticmethod
     def PdftoText():
+        FILENAME = str(pathlib.Path(__file__).parent.resolve()) + '\\temp\\__TMP__.pdf'
         XMLSTR = "" 
-        with pdfplumber.open('__TMP__.pdf') as pdf:
+        with pdfplumber.open(FILENAME) as pdf:
             for x in range(len(pdf.pages)):
                 first_page = pdf.pages[x]
                 XMLSTR += first_page.extract_text().lower()
@@ -421,7 +421,7 @@ class Transactions:
         if len(content) == 0:
             return 0
     def main(self):
-        FILENAME = '__TMP__.pdf'
+        FILENAME = str(pathlib.Path(__file__).parent.resolve()) + '\\temp\\__TMP__.pdf'
         print(len(self.URLS))
         # return
         # for x in range(1695+16+37):
@@ -440,7 +440,7 @@ class Transactions:
             self.__dumppdf(__Request__.content)
 
             XMLSTR = self.PdftoText()
-            open('out.txt', 'w').write(XMLSTR)
+            open(self.WorkingDir+'\\temp\\out.txt', 'w').write(XMLSTR)
 
 
             VersionInt = self.CheckXMLversion(XMLSTR)
@@ -470,7 +470,5 @@ class Transactions:
                     # print(TransDict)
             continue
             
-
-
 
 Transactions()
