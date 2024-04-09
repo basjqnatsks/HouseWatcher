@@ -1,6 +1,6 @@
 import yfinance as yf
-from ..sql_postgre import SQLP
-from read import read
+from . import sql_postgre
+from . import read
 import os
 import requests
 import pandas_market_calendars as mcal
@@ -10,7 +10,7 @@ class yprices:
     def __init__(self, sqldbconn = None) -> None:
         self.Directory = 'yfinance\\'
         if not sqldbconn:
-            self.DB = SQLP("house")
+            self.DB = sql_postgre.SQLP("house")
         self.GenerateCalender()
         #self.UploadFromDisk()
         #self.PopulateAllPrices()

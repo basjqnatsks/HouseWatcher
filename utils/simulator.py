@@ -1,6 +1,6 @@
-from ..sql import sql_postgre
+from . import sql_postgre
 import datetime
-from yprices import yprices
+from . import yprices
 from time import time
 import pandas_market_calendars as mcal
 class simulate:
@@ -126,39 +126,7 @@ order by transdate asc
                 f.write('\n')
         print(avglist)
 
-
-
-        
-
-
-
-
-
-
-
-
-
-    def __del__(self) -> None:
-        self.DB.Close()
-
-
-
-
-#SimulateCongress()
 #simulate('intc', '01-01-2000', '04-01-2024',1000)
         
 
 
-
-
-import yfinance as yf
-
-tickers = yf.Tickers('TWTR aapl goog')
-
-# access each ticker using (example)
-
-tickers.tickers['AAPL'].history(period="1mo")
-tickers.tickers['GOOG'].actions
-yf.download('TWTR', '01-01-2018', '02-02-2021',auto_adjust=True).to_csv('test.csv')
-
-print(tickers.tickers['TWTR'].actions)

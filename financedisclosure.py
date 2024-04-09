@@ -1,6 +1,6 @@
 import requests
 import datetime
-from sql import sql_postgre 
+from utils import sql_postgre 
 import xmltodict
 from zipfile import ZipFile
 from io import BytesIO
