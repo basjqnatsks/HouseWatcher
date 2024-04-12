@@ -37,48 +37,48 @@ order by transdate asc
         for x in self.DB.Query(DatesString):
             DateList.append(x)
 
-
-        for x in DateList:
+        amount = 1000
+        for x in range(len(DateList)):
 
             
             Qstring = f"""
     select  trantype,asset,transdate,lastname,statedistrict
     from public.transactions
     join financialdisclosure on filingid = docid
-    where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p' and transdate = '{x[0].strftime('%Y-%m-%d')}'
+    where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p' and transdate = '{DateList[x][0].strftime('%Y-%m-%d')}'
     order by transdate asc
     """
-            print(Qstring)
-            for  y in self.DB.Query(Qstring):
-                print(y)
-        return
-        for x in self.DB.Query(Qstring):
-            QueryLsit.append(x)
-
-
-        Percent = 1.0
-        print(DateList)
-        for x in QueryLsit:
-            print(x)
-
-        return
-
-
-
-
-        for x in Wallet:
-            avglist[x] = []
-            for y in range(len(Wallet[x])):
+            #print(Qstring)
+            TMPARR =  self.DB.Query(Qstring)
+            avgpercentage = 0
+            avgcount = 0
+            for  y in range(len(TMPARR)):
+                #print(y)
                 try:
-                    #print(cal)
-                    Wallet[x][y] = simulator.simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB, self.CalDateList).RT
-                    avglist[x].append(Wallet[x][y][1])
-                    
+                    date = DateList[x+1][0].strftime('%m-%d-%Y')
+                except Exception as e:
+                    #print(e)
+                    date = datetime.date.today().strftime('%m-%d-%Y')
+                ticker = TMPARR[y][1].split('(')[1].split(')')[0]
+                buydate = TMPARR[y][2].strftime('%m-%d-%Y')
+                print((ticker,buydate,date))
+                simobj = simulator.simulate(ticker,buydate,date,1000,self.DB,self.CalDateList)
+                try:
+                    avgpercentage += simobj.RT[1]
+                    avgcount += 1
                 except:
                     pass
-                print(y)
+            if avgcount > 0:
+                amount *= round(avgpercentage / avgcount, 9)
+                print(amount)
+                print(DateList[x][0].strftime('%Y-%m-%d') + ': ' + str(amount))
+                #print(round(avgpercentage / avgcount, 9))
+                #print(simobj.RT)
+            
+                #print(simulator.simulate(TMPARR[y][1].split('(')[1].split(')')[0] , TMPARR[y][2].strftime('%m-%d-%Y'), date ,1000, self.DB, self.CalDateList).RT[1])
+                #break
+        return
 
-        print(avglist)
 
 
     def Method1(self) -> None:

@@ -3,17 +3,20 @@ import datetime
 from . import yprices
 from time import time
 import pandas_market_calendars as mcal
+
 class simulate:
     def __init__(self,Security,BuyDate,SellDate,Amount,sqlconn=None,cal = None) -> None:
         if cal:
             self.cal = cal
         if not sqlconn:
-            self.DB = SQLP("house")
+            self.DB = sql_postgre.SQLP("house")
         else:
             self.DB = sqlconn
         if type(BuyDate) == str:
             BuyDateOfWeek = datetime.datetime.strptime(BuyDate, '%m-%d-%Y').weekday()
-        SellDateOfWeek = datetime.datetime.strptime(SellDate, '%m-%d-%Y').weekday()
+        if type(SellDate) == str:
+            SellDateOfWeek = datetime.datetime.strptime(SellDate, '%m-%d-%Y').weekday()
+
         Today = datetime.datetime.today()
         MostRecentDate = self.GetRecentDate(Security)
         DaysOfWeek = [1,2,3,4,5]
@@ -26,12 +29,17 @@ class simulate:
             #return
             print('not up dto date')
             MostRecentDatePlusOneDay = MostRecentDate + datetime.timedelta(days=1)
-            yprices().PopulateRangePrice(Security,MostRecentDatePlusOneDay,Today.date())
-        #get Buy
-        BuyPrice = self.GetBuyPrice(Security,BuyDate)
-        #get Close
-        SellPrice = self.GetSellPrice(Security,SellDate)
-        self.RT = (SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2))
+            yprices.yprices().PopulateRangePrice(Security,MostRecentDatePlusOneDay,Today.date())
+        try:
+            #get Buy
+            BuyPrice = self.GetBuyPrice(Security,BuyDate)
+            #get Close
+            SellPrice = self.GetSellPrice(Security,SellDate)
+            self.RT = (1,1,1)
+            self.RT = (SellPrice-BuyPrice, round(SellPrice/BuyPrice,9), round(SellPrice/BuyPrice*Amount,2))
+        except Exception as f:
+            print(f)
+            return
         #print((SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2)))
         #self.test(Security,BuyDate,SellDate,Amount)
         if not sqlconn:

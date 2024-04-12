@@ -29,7 +29,7 @@ class yprices:
 
     def UploadFromDisk(self):
         for x in os.listdir(self.Directory):
-            var  = read(self.Directory+ x, '\n')
+            var  = read.read(self.Directory+ x, '\n')
             del var[0]
             
             for y in range(len(var)):
