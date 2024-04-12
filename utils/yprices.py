@@ -8,7 +8,7 @@ import datetime
 from time import time
 class yprices:
     def __init__(self, sqldbconn = None) -> None:
-        self.Directory = 'yfinance\\'
+        self.Directory = 'temp\\'
         if not sqldbconn:
             self.DB = sql_postgre.SQLP("house")
         self.GenerateCalender()
@@ -27,19 +27,18 @@ class yprices:
             self.CalDateList.append(x[0].date())
 
 
-    def UploadFromDisk(self):
-        for x in os.listdir(self.Directory):
-            var  = read.read(self.Directory+ x, '\n')
-            del var[0]
-            
-            for y in range(len(var)):
-                var[y] = var[y].split(',')
-                #print(var[y])
-                if var[y] != [''] and datetime.datetime.strptime(var[y][0], '%Y-%m-%d').date() in self.CalDateList:
-                    #print('inserted')
-                    self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '')}'")
+    def UploadFileFromDisk(self,x):
+        var  = read.read(self.Directory+ x, '\n')
+        del var[0]
+        
+        for y in range(len(var)):
+            var[y] = var[y].split(',')
+            #print(var[y])
+            if var[y] != [''] and datetime.datetime.strptime(var[y][0], '%Y-%m-%d').date() in self.CalDateList:
+                #print('inserted')
+                self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '').replace('yf_', '')}'")
 
-                #print(y)
+            #print(y)
     @staticmethod
     def DeleteFolder(dir):
         print('del')
@@ -77,32 +76,34 @@ class yprices:
         return TICKER_LIST
     
     def PopulateAllPrices(self):
-        self.DeleteFolder(self.Directory)
-        try:
-            os.mkdir(self.Directory)
-        except:
-            pass
+        #self.DeleteFolder(self.Directory)
         self.TickerList = self.GetTickerList()
         for x in self.TickerList:
             try:
-                yf.download( x[0], '1950-01-01', '2025-01-01').to_csv(f'{self.Directory}/{ x[0]}.csv')
+                os.remove(f'{self.Directory}/yf_{x[0]}.csv')
+            except:
+                pass
+            try:
+                yf.download( x[0], '1950-01-01', '2025-01-01').to_csv(f'{self.Directory}/yf_{x[0]}.csv')
             except Exception as f:
                 print(f)
 
     def PopulateRangePrice(self,ticker, BeginRange, EndRange):
 
-        self.DeleteFolder(self.Directory)
+        #self.DeleteFolder(self.Directory)
         try:
-            os.mkdir(self.Directory)
+            os.remove(f'{self.Directory}/yf_{ticker}.csv')
         except:
             pass
         try:
 
-            yf.download(ticker, BeginRange, EndRange).to_csv(f'{self.Directory}/{ ticker}.csv')
+            yf.download(ticker, BeginRange, EndRange).to_csv(f'{self.Directory}/yf_{ticker}.csv')
+            self.UploadFileFromDisk(f'yf_{ticker}.csv')
+            
         except Exception as f:
             print(f)
 
-        self.UploadFromDisk()
+        #self.UploadFromDisk()
 
     # def __del__(self) -> None:
     #     self.DB.Close()
