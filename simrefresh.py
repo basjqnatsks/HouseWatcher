@@ -12,9 +12,29 @@ class refresh:
         if not os.path.isfile(self.file):
             self.GenerateCalender()
         self.ReadCalender()
-        self.validate('YF')
+        #@self.insertCalenderSQL()
+        #self.validatelinear('YF')
         
+    def insertCalenderSQL(self):
+        self.DB.Query("truncate public.marketcalender;")
+        
+        for x in self.Calender:
+            self.DB.Query(f"INSERT INTO public.marketcalender VALUES ('{x}')")
 
+
+    # def validatelinear(self, db):    
+    #     tickerlist = []
+    #     for x in self.GetTickerList(db):
+    #         tickerlist.append(x[0])
+
+    #     for x in tickerlist:
+    #         print(x)
+    #         FloorDateDate = self.GetFloorDate(x, db)
+    #         daterange = self.GetTickerDateRange(x,db)
+    #         for alsl in range(len(daterange)):
+    #             daterange[alsl] = daterange[alsl][0]
+    #         if not self.__VAL(FloorDateDate, daterange):
+    #             print(f'Error With {x} in db {db}')
 
 
 

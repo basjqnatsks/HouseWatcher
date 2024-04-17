@@ -26,7 +26,6 @@ for x in finalList:
         query = DB.Query(f"select dateprice from simulator where ticker = '{ticker}' and database  = 'INV' order by dateprice desc limit 1")
 
         if len(query) > 0:
-            if query[0][0] == 
             print(f'curl "https://api.investing.com/api/financialdata/historical/{str(x[-3])}?start-date={query[0][0]}&end-date=2100-01-01&time-frame=Daily&add-missing-rows=false" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.investing.com" -H "domain-id: www" --Output {filename}')
             os.system(f'curl "https://api.investing.com/api/financialdata/historical/{str(x[-3])}?start-date={query[0][0]}&end-date=2100-01-01&time-frame=Daily&add-missing-rows=false" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.investing.com" -H "domain-id: www" --Output {filename}')
             #print('skipping')
