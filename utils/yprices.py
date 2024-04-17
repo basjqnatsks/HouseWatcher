@@ -21,7 +21,7 @@ class yprices:
 
         # Show available calendars
         #print(mcal.get_calendar_names())
-        early = nyse.schedule(start_date='1900-01-01', end_date='2100-01-01')
+        early = nyse.schedule(start_date='1995-01-01', end_date='2030-01-01')
         self.CalDateList = []
         for x in early.iloc[:, 0].items():
             self.CalDateList.append(x[0].date())
@@ -76,6 +76,7 @@ class yprices:
         return TICKER_LIST
     
     def PopulateAllPrices(self):
+
         #self.DeleteFolder(self.Directory)
         self.TickerList = self.GetTickerList()
         for x in self.TickerList:
@@ -84,7 +85,8 @@ class yprices:
             except:
                 pass
             try:
-                yf.download( x[0], '1950-01-01', '2025-01-01').to_csv(f'{self.Directory}/yf_{x[0]}.csv')
+                yf.download( x[0], '1995-01-01', '2025-01-01').to_csv(f'{self.Directory}/yf_{x[0]}.csv')
+                self.UploadFileFromDisk(f'yf_{x[0]}.csv')
             except Exception as f:
                 print(f)
 

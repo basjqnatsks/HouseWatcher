@@ -4,7 +4,8 @@ import os
 from time import time
 import pandas_market_calendars as mcal
 from utils import read
-
+from utils import yprices
+import requests
 class refresh:
     def __init__(self) -> None:
         self.DB = sql_postgre.SQLP("house")
@@ -12,16 +13,45 @@ class refresh:
         if not os.path.isfile(self.file):
             self.GenerateCalender()
         self.ReadCalender()
-        #@self.insertCalenderSQL()
+        self.ypricesz()
         #self.validatelinear('YF')
         
     def insertCalenderSQL(self):
         self.DB.Query("truncate public.marketcalender;")
-        
         for x in self.Calender:
             self.DB.Query(f"INSERT INTO public.marketcalender VALUES ('{x}')")
 
 
+    def GetTickerList(self):
+        headers = {
+            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+            'accept-language': 'en-US,en;q=0.9',
+            'cache-control': 'no-cache',
+
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+        }
+
+        response = requests.get('https://www.sec.gov/include/ticker.txt', headers=headers)
+        TICKER_LIST = str(response.text)
+        TICKER_LIST = TICKER_LIST.split('\n')
+        for x in range(len(TICKER_LIST)):
+            TICKER_LIST[x] = TICKER_LIST[x].split('\t')
+        return TICKER_LIST
+    
+    def ypricesz(self):
+
+        
+        Today = datetime.datetime.today()
+        MostRecentDate = self.GetRecentDate(Security)
+        LastMarketDay = self.GetLastMarketDay()
+        DaysOfWeek = [1,2,3,4,5]
+        if MostRecentDate != LastMarketDay and MostRecentDate < SellDate.date():
+            MostRecentDatePlusOneDay = MostRecentDate + datetime.timedelta(days=1)
+
+
+
+            yprices.yprices().PopulateRangePrice(Security,MostRecentDatePlusOneDay,'2100-01-01')
+        yprices.yprices().PopulateAllPrices()
     # def validatelinear(self, db):    
     #     tickerlist = []
     #     for x in self.GetTickerList(db):
@@ -121,7 +151,3 @@ class refresh:
 
 
 
-        
-
-
-refresh()
