@@ -1,0 +1,2 @@
+py investingscrape.py
+pause

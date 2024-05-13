@@ -5,12 +5,13 @@ from time import time
 import os
 import yfinance as yf
 import requests
+import pathlib
 from utils import calender,read
 class ScrapeYfin:
     def __init__(self) -> None:
         self.Calender = calender.getCalender()
         self.Tickers = self.GetTickerList()
-        self.Directory = 'temp\\'
+        self.Directory = str(pathlib.Path(__file__).parent.resolve()) + '\\temp\\'
         self.DB = sql_postgre.SQLP("house")
         hour = datetime.datetime.now().hour
         TodayDate = datetime.datetime.today().date()
@@ -19,7 +20,8 @@ class ScrapeYfin:
             Ticker = str(x[0].lower())
             print(Ticker)
             t= time()
-            filename = f'temp/yf_{Ticker}.tmp'
+            filename = str(pathlib.Path(__file__).parent.resolve()) + f'\\temp\\yf_{Ticker}.tmp'
+
             query = self.DB.Query(f"select dateprice from simulator where ticker = '{Ticker}' and database  = 'YF' order by dateprice desc limit 1")
             if len(query) > 0:
                 MostUpToDate = query[0][0]
@@ -90,4 +92,5 @@ class ScrapeYfin:
                     self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '').replace('yf_', '')}'")
                 except:
                     pass
+
 ScrapeYfin()

@@ -1,0 +1,2 @@
+py yahooscrape.py
+pause

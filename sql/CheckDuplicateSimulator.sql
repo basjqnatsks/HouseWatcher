@@ -1,9 +1,9 @@
-CREATE OR REPLACE FUNCTION GetDuplicateSimulator()
+-- CREATE OR REPLACE FUNCTION GetDuplicateSimulator()
 
-AS 
-$$
- DECLARE
- begin
+-- AS 
+-- $$
+--  DECLARE
+--  begin
 drop table IF EXISTS tickers;
 
 
@@ -22,5 +22,5 @@ on t.ticker = s.ticker and t.database = s.database and t.dateprice = s.dateprice
 
 
 
-  END;
-$$ LANGUAGE plpgsql;
+--   END;
+-- $$ LANGUAGE plpgsql;

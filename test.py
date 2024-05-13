@@ -5,27 +5,68 @@ from time import time
 import os
 import yfinance as yf
 import requests
-db = sql_postgre.SQLP("house")
-t = time()
-simulator.simulate('tsla','2000-1-2','3-11-2024',1000, db)
-print(str(time()-t))
+# db = sql_postgre.SQLP("house")
+# ticker = []
+# for x in db.Query('select distinct asset from public.transactions'):
+#     print(x)
+#     if '[st]' in x[0]:
+#         ticker.append(x[0].split('(')[1].split(')')[0])
 
-yf.download('twtr', '01-01-2020', '01-01-2021').to_csv(f'34334.csv')
+# for x in ticker:
+# #     Q = db.Query(f"select distinct 1 from public.simulator where ticker ='{x}'")
+# #     if len(Q) == 0:
+#         print(x)
 
-def GetTickerList():
-    headers = {
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-        'accept-language': 'en-US,en;q=0.9',
-        'cache-control': 'no-cache',
+# print(simulator.simulate('tsla','01-01-2024', '01-01-2025'))
+class SimulateCongress:
+    def __init__(self) -> None:
+        self.DB = sql_postgre.SQLP("house")
+        QueryLsit = []
+        Wallet = {}
+        Qstring = """
+select  trantype,asset,transdate,lastname,statedistrict
+from public.transactions
+join financialdisclosure on filingid = docid
+where asset not like 'PICTURE' and transdate <= notificationdate and trantype like 'p'
+order by transdate asc
+"""
+        for x in self.DB.Query(Qstring):
+            QueryLsit.append(x)
+        for x in range(len(QueryLsit)):
+            QueryLsit[x] = list(QueryLsit[x])
+            #$print(QueryLsit[x])
+            if '(' in QueryLsit[x][1]:
+                try:
+                    QueryLsit[x][1] = QueryLsit[x][1].split('(')[1].split(')')[0]
+                except:
+                    continue
+            QueryLsit[x][3] = QueryLsit[x][3].lower()
+            QueryLsit[x][3] += QueryLsit[x][4].lower()
+            del QueryLsit[x][-1]
+            Wallet[QueryLsit[x][-1]] = []
 
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-    }
+        for x in QueryLsit:
+            # print([x[1], x[2]])
+            Wallet[x[-1]].append([x[1], x[2]])
 
-    response = requests.get('https://www.sec.gov/include/ticker.txt', headers=headers)
-    TICKER_LIST = str(response.text)
-    TICKER_LIST = TICKER_LIST.split('\n')
-    for x in range(len(TICKER_LIST)):
-        TICKER_LIST[x] = TICKER_LIST[x].split('\t')
-    return TICKER_LIST
 
-ff = GetTickerList()
+        avglist = {}
+        for x in Wallet:
+            #print(x)
+            avglist[x] = []
+            for y in range(len(Wallet[x])):
+                try:
+                    Wallet[x][y] = simulator.simulate(Wallet[x][y][0] , Wallet[x][y][1], Wallet[x][y][1]+datetime.timedelta(days=365*3), self.DB)
+                    avglist[x].append(Wallet[x][y][1])
+                except IOError as poer:
+                    print(poer)
+        with open('out.csv', 'w') as f:
+            for pop in avglist:
+                f.write(pop+',')
+                for too in avglist[pop]:
+                    f.write(str(too)+',')
+                f.write('\n')
+        print(avglist)
+
+
+SimulateCongress()

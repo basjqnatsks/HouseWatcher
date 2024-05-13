@@ -4,6 +4,7 @@ from utils import sql_postgre
 from utils import read
 import json
 import datetime
+import pathlib
 DB = sql_postgre.SQLP("house")
 Calender = DB.Query('select dateprice from public.marketcalender')
 for x in range(len(Calender)):
@@ -17,7 +18,7 @@ def GetLastMarketDay():
         Today -= datetime.timedelta(days=1)
     return Today
 finalList = []
-d = read.read('investing_stocks.csv', '\n')
+d = read.read(str(pathlib.Path(__file__).parent.resolve()) + '\\investing_stocks.csv', '\n')
 for x in range(len(d)):
     d[x] = d[x].split(',')
     if d[x][0] == 'united states':
@@ -30,7 +31,7 @@ for x in finalList:
         print(x)
     else:
         t= time()
-        filename = f'temp/investing_{str(x[-1])}_{str(x[-3])}.tmp'
+        filename = str(pathlib.Path(__file__).parent.resolve()) + f'\\temp\\investing_{str(x[-1])}_{str(x[-3])}.tmp'
         ticker = str(x[-1]).lower()
         print(ticker)
         query = DB.Query(f"select dateprice from simulator where ticker = '{ticker}' and database  = 'INV' order by dateprice desc limit 1")
@@ -46,7 +47,7 @@ for x in finalList:
                 elif MarketDateToday - datetime.timedelta(days=1) == MostUpToDate and datetime.datetime.now().hour < 17:
                     continue
                 else:
-                    print(f'curl "https://api.investing.com/api/financialdata/historical/{str(x[-3])}?start-date={query[0][0] + datetime.timedelta(days=1)}&end-date=2100-01-01&time-frame=Daily&add-missing-rows=false" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.investing.com" -H "domain-id: www" --Output {filename}')
+                    #print(f'curl "https://api.investing.com/api/financialdata/historical/{str(x[-3])}?start-date={query[0][0] + datetime.timedelta(days=1)}&end-date=2100-01-01&time-frame=Daily&add-missing-rows=false" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.investing.com" -H "domain-id: www" --Output {filename}')
                     os.system(f'curl "https://api.investing.com/api/financialdata/historical/{str(x[-3])}?start-date={query[0][0] + datetime.timedelta(days=1)}&end-date=2100-01-01&time-frame=Daily&add-missing-rows=false" -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:124.0) Gecko/20100101 Firefox/124.0" -H "Accept: application/json, text/plain, */*" -H "Origin: https://www.investing.com" -H "domain-id: www" --Output {filename}')
             else:
                 continue
