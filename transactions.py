@@ -22,7 +22,7 @@ class Transactions:
     def Url(Year: int, doc) -> str:
         return f'https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/{str(Year)}/{str(doc)}.pdf'
     def GenerateURLS(self):
-        # print( self.CurrentYear)
+        print( self.CurrentYear)
         # DoesExist = []
         # for x in self.DB.Query('select distinct FilingId from Transactions'):
         #     DoesExist.append(x[0])
@@ -283,12 +283,13 @@ class Transactions:
                         DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','').replace(',','')
                     MoneyCounter += 1 
             if not DICT['AMOUNT_HIGH']:
-                DICT['AMOUNT_HIGH'] = '-1'
+                DICT['AMOUNT_HIGH'] = '-1.1'
 
 
             NoDollars = x.split(DICT['AMOUNT_HIGH'])[0]
-            NoDollarsSplitOnSpace = NoDollars.split(' ')
 
+            NoDollarsSplitOnSpace = NoDollars.split(' ')
+            
             DateCounter = 0
             for num in range(len(NoDollarsSplitOnSpace)-1, -1, -1):
                 if self.is_date(NoDollarsSplitOnSpace[num]):
@@ -315,8 +316,9 @@ class Transactions:
             for pqpw in NoDollarsSplitOnSpace:
                 AssetString += pqpw + ' '
             #print(AssetString)
-            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
             #print(DICT)
+            DICT['ASSET'] = AssetString.replace("'",'').replace(",",'').strip().split(' '+DICT['TRANTYPE']+' ')[0].strip()
+            
             output.append(DICT)
         return output
     def NewNullParse(self, content):
@@ -371,7 +373,7 @@ class Transactions:
                         DICT['AMOUNT_HIGH'] = SplitOnSpace[num].replace('$','').replace(',','')
                     MoneyCounter += 1 
             if not DICT['AMOUNT_HIGH']:
-                DICT['AMOUNT_HIGH'] = '-1'
+                DICT['AMOUNT_HIGH'] = '-1.1'
 
 
             NoDollars = x.split(DICT['AMOUNT_HIGH'])[0]
@@ -452,6 +454,7 @@ class Transactions:
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
             elif VersionInt == 2:
                 PageTransactions = self.NewParse(XMLSTR)
+
                 FileIDfromUrl = URL.split('.pdf')[0].split('/')[-1]
             elif VersionInt == 3:
                 PageTransactions = self.NewNullParse(XMLSTR)
@@ -466,7 +469,7 @@ class Transactions:
             for TransDict in PageTransactions:
                 if TransDict['AMOUNT_LOW'] and TransDict['AMOUNT_HIGH'] and TransDict['NOTIF_DATE'] and TransDict['TRANS_DATE'] and TransDict['ASSET']  and TransDict['TRANTYPE']:
                     #print(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
-                    self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE']}')")
+                    self.DB.Query(f"INSERT INTO transactions VALUES ('{TransDict['TRANTYPE']}','{TransDict['ASSET']}','','{TransDict['TRANS_DATE']}',{FileIDfromUrl},{TransDict['AMOUNT_LOW']},{TransDict['AMOUNT_HIGH']},'{TransDict['NOTIF_DATE'].replace('.','')}')")
                     # print(TransDict)
             continue
             

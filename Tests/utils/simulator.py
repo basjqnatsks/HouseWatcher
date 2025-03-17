@@ -7,24 +7,20 @@ from . import read
 import json
 import os
 class simulate(object):
-    def __new__(cls,Security,BuyDate,SellDate,sqlconn=None,CalDateList=None):
-        cls.__init__(cls,Security,BuyDate,SellDate,sqlconn,CalDateList)
+    def __new__(cls,Security,BuyDate,SellDate,sqlconn=None):
+        cls.__init__(cls,Security,BuyDate,SellDate,sqlconn)
         return cls.RT
-    def __init__(self,Security,BuyDate,SellDate,sqlconn,CalDateList) -> None:
-        t= time()
+    def __init__(self,Security,BuyDate,SellDate,sqlconn) -> None:
         if not sqlconn:
             self.DB = sql_postgre.SQLP("house")
         else:
             self.DB = sqlconn
         if len(self.DB.Query(f"select 1 from public.simulator where ticker ='{Security}'")) == 0:
             raise IOError("No Ticker Found")
-        if not CalDateList:
-            self.Calender = self.DB.Query('select dateprice from public.marketcalender')
-            for x in range(len(self.Calender)):
-                print(self.self.Calender[x])
+        
+        self.Calender = self.DB.Query('select dateprice from public.marketcalender')
+        for x in range(len(self.Calender)):
             self.Calender[x] = self.Calender[x][0]
-        else:
-            self.Calender = CalDateList
         if type(BuyDate) == str:
             try:
                 BuyDate = datetime.datetime.strptime(BuyDate, '%m-%d-%Y')
@@ -52,7 +48,7 @@ class simulate(object):
             print(f)
             return
         if not sqlconn:
-            self.DB.Close()  
+            self.DB.Close()    
     def GetLastMarketDay(self):
         Today = datetime.datetime.today().date()# - datetime.timedelta(days=1)
         #CalList= yprices().CalDateList
@@ -73,6 +69,10 @@ class simulate(object):
         SellQ = f"select closeprice from simulator where ticker = '{Security}' and dateprice <= '{SellDate}'  and dateprice <= '{self.Today}' order by dateprice desc limit 1"
         #print(SellQ)
         return float(self.DB.Query(SellQ)[0][0].replace('$', ''))
+
+
     #def test(self, Security,BuyDate,SellDate,Amount):
 
         #return (SellPrice-BuyPrice, round(SellPrice/BuyPrice,2), round(SellPrice/BuyPrice*Amount,2))
+
+

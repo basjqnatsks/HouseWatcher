@@ -13,7 +13,8 @@ class refresh:
         if not os.path.isfile(self.file):
             self.GenerateCalender()
         self.ReadCalender()
-        self.ypricesz()
+        self.insertCalenderSQL()
+        # self.ypricesz()
         #self.validatelinear('YF')
         
     def insertCalenderSQL(self):

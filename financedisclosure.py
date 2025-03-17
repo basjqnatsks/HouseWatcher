@@ -15,12 +15,12 @@ class FinanceDisclosure:
     def __init__(self) -> None:
         self.EmailList = [
             '5095288130@vtext.com',
-            '5092822020@vtext.com',
-            '5095670431@vtext.com',
-            '5094400337@vtext.com',
-            '5097135671@txt.att.net',
-            '5095540049@tmomail.net',
-            '2027654320@txt.att.net',
+            # '5092822020@vtext.com',
+            # '5095670431@vtext.com',
+            # '5094400337@vtext.com',
+            # '5097135671@txt.att.net',
+            # '5095540049@tmomail.net',
+            # '2027654320@txt.att.net',
         ]
         # self.SendEmail('Tewst')
         self.FirstYear = 2008
@@ -122,9 +122,9 @@ class FinanceDisclosure:
                             Member['FilingDate'] = '01-01-1970'
                         
                         if Member['FilingType'].lower() == 'p':
-                            self.SendEmail(f"""{Member['Last']} {self.TUrl(Member['Year'],Member['DocID'])}""")
+                            #self.SendEmail(f"""{Member['Last']} {self.TUrl(Member['Year'],Member['DocID'])}""")
                             print(f"""{Member['First']} {Member['Last']} Trade At {self.TUrl(Member['Year'],Member['DocID'])}""")
-                        sleep(10)
+                        # sleep(10)
                         self.DB.Insert('FinancialDisclosure', f"'{Member['First']}','{Member['Last']}','{Member['StateDst']}','{Member['FilingType']}','{Member['Year']}','{Member['FilingDate']}','{Member['DocID']}'")
         # #DB.PrintAllTables()
                         

@@ -21,6 +21,7 @@ class SimulateCongress:
                 for too in Iterator[pop]:
                     f.write(str(too)+',')
                 f.write('\n')
+
     def Method2(self) -> None:
         self.GenerateCalender()
         self.DB = sql_postgre.SQLP("house")
@@ -42,7 +43,7 @@ order by transdate asc
 
             
             Qstring = f"""
-    select  trantype,asset,transdate,lastname,statedistrict
+    select  trantype,asset,transdate,financialdisclosure.lastname,financialdisclosure.statedistrict
     from public.transactions
     join financialdisclosure on filingid = docid
     where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p' and transdate = '{DateList[x][0].strftime('%Y-%m-%d')}'
@@ -61,8 +62,78 @@ order by transdate asc
                     date = datetime.date.today().strftime('%m-%d-%Y')
                 ticker = TMPARR[y][1].split('(')[1].split(')')[0]
                 buydate = TMPARR[y][2].strftime('%m-%d-%Y')
-                print((ticker,buydate,date))
-                simobj = simulator.simulate(ticker,buydate,date,1000,self.DB,self.CalDateList)
+                print(ticker)
+                try:
+                    simobj = simulator.simulate(ticker,buydate,date,self.DB,self.CalDateList)
+                    print(simobj)
+                except:
+                    continue
+                try:
+                    avgpercentage += simobj.RT[1]
+                    avgcount += 1
+                except:
+                    pass
+            if avgcount > 0:
+                amount *= round(avgpercentage / avgcount, 9)
+                print(amount)
+                print(DateList[x][0].strftime('%Y-%m-%d') + ': ' + str(amount))
+                #print(round(avgpercentage / avgcount, 9))
+                #print(simobj.RT)
+            
+                #print(simulator.simulate(TMPARR[y][1].split('(')[1].split(')')[0] , TMPARR[y][2].strftime('%m-%d-%Y'), date ,1000, self.DB, self.CalDateList).RT[1])
+                #break
+        return
+
+
+
+
+
+    def Method2(self) -> None:
+        self.GenerateCalender()
+        self.DB = sql_postgre.SQLP("house")
+        QueryLsit = []
+        Wallet = {}
+        DateList = []
+        DatesString = """
+select  distinct transdate
+from public.transactions
+join financialdisclosure on filingid = docid
+where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p'
+order by transdate asc
+"""
+        for x in self.DB.Query(DatesString):
+            DateList.append(x)
+
+        amount = 1000
+        for x in range(len(DateList)):
+
+            
+            Qstring = f"""
+    select  trantype,asset,transdate,financialdisclosure.lastname,financialdisclosure.statedistrict
+    from public.transactions
+    join financialdisclosure on filingid = docid
+    where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p' and transdate = '{DateList[x][0].strftime('%Y-%m-%d')}'
+    order by transdate asc
+    """
+            #print(Qstring)
+            TMPARR =  self.DB.Query(Qstring)
+            avgpercentage = 0
+            avgcount = 0
+            for  y in range(len(TMPARR)):
+                #print(y)
+                try:
+                    date = DateList[x+1][0].strftime('%m-%d-%Y')
+                except Exception as e:
+                    #print(e)
+                    date = datetime.date.today().strftime('%m-%d-%Y')
+                ticker = TMPARR[y][1].split('(')[1].split(')')[0]
+                buydate = TMPARR[y][2].strftime('%m-%d-%Y')
+                print(ticker)
+                try:
+                    simobj = simulator.simulate(ticker,buydate,date,self.DB,self.CalDateList)
+                    print(simobj)
+                except:
+                    continue
                 try:
                     avgpercentage += simobj.RT[1]
                     avgcount += 1
@@ -87,7 +158,7 @@ order by transdate asc
         QueryLsit = []
         Wallet = {}
         Qstring = """
-select  trantype,asset,transdate,lastname,statedistrict
+select  trantype,asset,transdate,financialdisclosure.lastname,financialdisclosure.statedistrict
 from public.transactions
 join financialdisclosure on filingid = docid
 where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p'
@@ -110,13 +181,15 @@ order by transdate asc
         for x in Wallet:
             avglist[x] = []
             for y in range(len(Wallet[x])):
-                try:
-                    #print(cal)
-                    Wallet[x][y] = simulator.simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024',1000, self.DB, self.CalDateList).RT
-                    avglist[x].append(Wallet[x][y][1])
+                # try:
+                #     #print(cal)
+                Wallet[x][y] = simulator.simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024', self.DB, self.CalDateList)
+                print( simulator.simulate(Wallet[x][y][0] , Wallet[x][y][1], '03-31-2024', self.DB, self.CalDateList))
+                avglist[x].append(Wallet[x][y][1])
+
                     
-                except:
-                    pass
+                # except :
+                #     pass
                 print(y)
         with open('out.csv', 'w') as f:
             for pop in avglist:
