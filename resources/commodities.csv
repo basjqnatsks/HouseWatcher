@@ -1,67 +1,67 @@
-title,country,id,name,full_name,tag,currency,group
-Real Time Streaming Futures Quotes,,8830,Gold,Gold Futures,gold,USD,metals
-Real Time Streaming Futures Quotes,united states,8831,Copper,Copper Futures,copper,USD,metals
-Real Time Streaming Futures Quotes,,8836,Silver,Silver Futures,silver,USD,metals
-Real Time Streaming Futures Quotes,united states,8883,Palladium,Palladium Futures,palladium,USD,metals
-Real Time Streaming Futures Quotes,united states,8910,Platinum,Platinum Futures,platinum,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,49768,Aluminum,Aluminum Futures,aluminum,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,956470,Zinc,Zinc Futures,zinc?cid=956470,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,959207,Lead,Lead Futures,lead?cid=959207,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,959208,Nickel,Nickel Futures,nickel?cid=959208,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,959209,Tin,Tin Futures,tin,USD,metals
-Real Time Streaming Futures Quotes,united kingdom,959211,Copper,Copper Futures,copper?cid=959211,USD,metals
-EUREX Futures Market Quotes,euro zone,40818,Xetra-Gold,Xetra-Gold Futures,refined-gold?cid=40818,EUR,metals
-MCX Futures Market Quotes,india,49767,MCX Aluminum Mini,Aluminum Mini Futures,aluminium-mini,INR,metals
-MCX Futures Market Quotes,india,40015,MCX Aluminum,Aluminum Futures,aluminum?cid=40015,INR,metals
-MCX Futures Market Quotes,india,49771,MCX Copper,Copper Futures,copper?cid=49771,INR,metals
-MCX Futures Market Quotes,india,49772,MCX Copper Mini,Copper Mini Futures,copper-mini,INR,metals
-MCX Futures Market Quotes,india,49776,MCX Gold 1 Kg,Gold 1 Kg,refined-gold?cid=49776,INR,metals
-MCX Futures Market Quotes,india,49777,MCX Gold Guinea,Gold Guinea Futures,gold-guinea,INR,metals
-MCX Futures Market Quotes,india,49778,MCX Gold Mini,Gold Mini Futures,gold-mini,INR,metals
-MCX Futures Market Quotes,india,49779,MCX Gold Petal,Gold Petal Futures,gold-petal,INR,metals
-MCX Futures Market Quotes,india,49780,MCX Gold Petal Del,Gold Petal (New Delhi) Futures,goldptldel,INR,metals
-MCX Futures Market Quotes,india,49784,MCX Lead,Lead Futures,lead,INR,metals
-MCX Futures Market Quotes,india,49796,MCX Lead Mini,Lead Mini Futures,lead-mini,INR,metals
-MCX Futures Market Quotes,india,49788,MCX Nickel,Nickel Futures,nickel,INR,metals
-MCX Futures Market Quotes,india,49789,MCX Nickel Mini,Nickel Mini Futures,nickel-mini,INR,metals
-MCX Futures Market Quotes,india,49791,MCX Silver,Silver Futures,silver?cid=49791,INR,metals
-MCX Futures Market Quotes,india,49792,MCX Silver Micro,Silver Micro Futures,silver-micro,INR,metals
-MCX Futures Market Quotes,india,49793,MCX Silver Mini,Silver Mini Futures,silver-mini,INR,metals
-MCX Futures Market Quotes,india,49794,MCX Zinc,Zinc Futures,zinc,INR,metals
-MCX Futures Market Quotes,india,49795,MCX Zinc Mini,Zinc Mini Futures,zinc-mini,INR,metals
-Real Time Streaming Futures Quotes,united states,8832,US Coffee C,US Coffee C Futures,us-coffee-c,USD,softs
-Real Time Streaming Futures Quotes,united states,8851,US Cotton #2,US Cotton #2 Futures,us-cotton-no.2,USD,softs
-Real Time Streaming Futures Quotes,united states,8869,US Sugar #11,US Sugar #11 Futures,us-sugar-no11,USD,softs
-Real Time Streaming Futures Quotes,united states,8891,Orange Juice,Orange Juice Futures,orange-juice,USD,softs
-Real Time Streaming Futures Quotes,united states,8894,US Cocoa,US Cocoa Futures,us-cocoa,USD,softs
-Real Time Streaming Futures Quotes,united kingdom,8911,London Coffee,London Robusta Coffee Futures,london-coffee,USD,softs
-Real Time Streaming Futures Quotes,united kingdom,8860,London Cocoa,London Cocoa Futures,london-cocoa,GBP,softs
-Real Time Streaming Futures Quotes,united kingdom,8834,London Sugar,London Sugar Futures,london-sugar,USD,softs
-Real Time Streaming Futures Quotes,united states,959198,Lumber,Lumber Futures,lumber,USD,softs
-MCX Futures Market Quotes,india,49770,MCX Cardamom,Cardamom Futures,cardamom,INR,softs
-MCX Futures Market Quotes,india,49773,MCX Cotton,Cotton 29mm Futures,cotton,INR,softs
-MCX Futures Market Quotes,india,49775,MCX Crude Palm Oil,Crude Palm Oil Futures,crude-palm-oil,INR,softs
-MCX Futures Market Quotes,india,49782,MCX Kapas,Kapas Futures,kapas,INR,softs
-MCX Futures Market Quotes,india,49785,MCX Mentha Oil,Mentha Oil Futures,mentha-oil,INR,softs
-MCX Futures Market Quotes,india,997362,MCX Castor Seed,Castor Seed Futures,castor-seed?cid=997362,INR,softs
-Real Time Streaming Futures Quotes,united states,8914,Live Cattle,Live Cattle Futures,live-cattle,USD,meats
-Real Time Streaming Futures Quotes,united states,8913,Lean Hogs,Lean Hogs Futures,lean-hogs,USD,meats
-Real Time Streaming Futures Quotes,united states,961618,Feeder Cattle,Feeder Cattle Futures,feed-cattle,USD,meats
-Real Time Streaming Futures Quotes,united kingdom,8833,Brent Oil,Brent Oil Futures,brent-oil,USD,energy
-Real Time Streaming Futures Quotes,united states,8849,Crude Oil WTI,Crude Oil WTI Futures,crude-oil,USD,energy
-Real Time Streaming Futures Quotes,united kingdom,8861,London Gas Oil,London Gas Oil Futures,london-gas-oil,USD,energy
-Real Time Streaming Futures Quotes,united states,8862,Natural Gas,Natural Gas Futures,natural-gas,USD,energy
-Real Time Streaming Futures Quotes,united states,8988,Heating Oil,Heating Oil Futures,heating-oil,USD,energy
-Real Time Streaming Futures Quotes,united kingdom,8848,Carbon Emissions,Carbon Emissions Futures,carbon-emissions,EUR,energy
-Real Time Streaming Futures Quotes,united states,954867,Gasoline RBOB,Gasoline RBOB Futures,gasoline-rbob,USD,energy
-MCX Futures Market Quotes,india,49769,MCX Brent Oil,Brent Oil Futures,brent-oil?cid=49769,INR,energy
-MCX Futures Market Quotes,india,49774,MCX Crude Oil WTI,Crude Oil WTI Futures,crude-oil?cid=49774,INR,energy
-MCX Futures Market Quotes,india,49787,MCX Natural Gas,Natural Gas Futures,natural-gas?cid=49787,INR,energy
-Real Time Streaming Futures Quotes,united kingdom,8912,London Wheat,London Wheat Futures,london-wheat,GBP,grains
-Real Time Streaming Futures Quotes,united states,13916,Rough Rice,Rough Rice Futures,rough-rice,USD,grains
-Real Time Streaming Futures Quotes,united states,8915,US Soybean Oil,US Soybean Oil Futures,us-soybean-oil,USD,grains
-Real Time Streaming Futures Quotes,united states,8919,US Soybean Meal,US Soybean Meal Futures,us-soybean-meal,USD,grains
-Real Time Streaming Futures Quotes,united states,8916,US Soybeans,US Soybeans Futures,us-soybeans,USD,grains
-Real Time Streaming Futures Quotes,united states,8917,US Wheat,US Wheat Futures,us-wheat,USD,grains
-Real Time Streaming Futures Quotes,united states,8918,US Corn,US Corn Futures,us-corn,USD,grains
-Real Time Streaming Futures Quotes,united states,959199,Oats,Oats Futures,oats,USD,grains
+country,,title,,full_name,id,currency,group,name
+,,Real Time Streaming Futures Quotes,,Gold Futures,8830,USD,metals,Gold
+united states,,Real Time Streaming Futures Quotes,,Copper Futures,8831,USD,metals,Copper
+,,Real Time Streaming Futures Quotes,,Silver Futures,8836,USD,metals,Silver
+united states,,Real Time Streaming Futures Quotes,,Palladium Futures,8883,USD,metals,Palladium
+united states,,Real Time Streaming Futures Quotes,,Platinum Futures,8910,USD,metals,Platinum
+united kingdom,,Real Time Streaming Futures Quotes,,Aluminum Futures,49768,USD,metals,Aluminum
+united kingdom,,Real Time Streaming Futures Quotes,,Zinc Futures,956470,USD,metals,Zinc
+united kingdom,,Real Time Streaming Futures Quotes,,Lead Futures,959207,USD,metals,Lead
+united kingdom,,Real Time Streaming Futures Quotes,,Nickel Futures,959208,USD,metals,Nickel
+united kingdom,,Real Time Streaming Futures Quotes,,Tin Futures,959209,USD,metals,Tin
+united kingdom,,Real Time Streaming Futures Quotes,,Copper Futures,959211,USD,metals,Copper
+euro zone,,EUREX Futures Market Quotes,,Xetra-Gold Futures,40818,EUR,metals,Xetra-Gold
+india,,MCX Futures Market Quotes,,Aluminum Mini Futures,49767,INR,metals,MCX Aluminum Mini
+india,,MCX Futures Market Quotes,,Aluminum Futures,40015,INR,metals,MCX Aluminum
+india,,MCX Futures Market Quotes,,Copper Futures,49771,INR,metals,MCX Copper
+india,,MCX Futures Market Quotes,,Copper Mini Futures,49772,INR,metals,MCX Copper Mini
+india,,MCX Futures Market Quotes,,Gold 1 Kg,49776,INR,metals,MCX Gold 1 Kg
+india,,MCX Futures Market Quotes,,Gold Guinea Futures,49777,INR,metals,MCX Gold Guinea
+india,,MCX Futures Market Quotes,,Gold Mini Futures,49778,INR,metals,MCX Gold Mini
+india,,MCX Futures Market Quotes,,Gold Petal Futures,49779,INR,metals,MCX Gold Petal
+india,,MCX Futures Market Quotes,,Gold Petal (New Delhi) Futures,49780,INR,metals,MCX Gold Petal Del
+india,,MCX Futures Market Quotes,,Lead Futures,49784,INR,metals,MCX Lead
+india,,MCX Futures Market Quotes,,Lead Mini Futures,49796,INR,metals,MCX Lead Mini
+india,,MCX Futures Market Quotes,,Nickel Futures,49788,INR,metals,MCX Nickel
+india,,MCX Futures Market Quotes,,Nickel Mini Futures,49789,INR,metals,MCX Nickel Mini
+india,,MCX Futures Market Quotes,,Silver Futures,49791,INR,metals,MCX Silver
+india,,MCX Futures Market Quotes,,Silver Micro Futures,49792,INR,metals,MCX Silver Micro
+india,,MCX Futures Market Quotes,,Silver Mini Futures,49793,INR,metals,MCX Silver Mini
+india,,MCX Futures Market Quotes,,Zinc Futures,49794,INR,metals,MCX Zinc
+india,,MCX Futures Market Quotes,,Zinc Mini Futures,49795,INR,metals,MCX Zinc Mini
+united states,,Real Time Streaming Futures Quotes,,US Coffee C Futures,8832,USD,softs,US Coffee C
+united states,,Real Time Streaming Futures Quotes,,US Cotton #2 Futures,8851,USD,softs,US Cotton #2
+united states,,Real Time Streaming Futures Quotes,,US Sugar #11 Futures,8869,USD,softs,US Sugar #11
+united states,,Real Time Streaming Futures Quotes,,Orange Juice Futures,8891,USD,softs,Orange Juice
+united states,,Real Time Streaming Futures Quotes,,US Cocoa Futures,8894,USD,softs,US Cocoa
+united kingdom,,Real Time Streaming Futures Quotes,,London Robusta Coffee Futures,8911,USD,softs,London Coffee
+united kingdom,,Real Time Streaming Futures Quotes,,London Cocoa Futures,8860,GBP,softs,London Cocoa
+united kingdom,,Real Time Streaming Futures Quotes,,London Sugar Futures,8834,USD,softs,London Sugar
+united states,,Real Time Streaming Futures Quotes,,Lumber Futures,959198,USD,softs,Lumber
+india,,MCX Futures Market Quotes,,Cardamom Futures,49770,INR,softs,MCX Cardamom
+india,,MCX Futures Market Quotes,,Cotton 29mm Futures,49773,INR,softs,MCX Cotton
+india,,MCX Futures Market Quotes,,Crude Palm Oil Futures,49775,INR,softs,MCX Crude Palm Oil
+india,,MCX Futures Market Quotes,,Kapas Futures,49782,INR,softs,MCX Kapas
+india,,MCX Futures Market Quotes,,Mentha Oil Futures,49785,INR,softs,MCX Mentha Oil
+india,,MCX Futures Market Quotes,,Castor Seed Futures,997362,INR,softs,MCX Castor Seed
+united states,,Real Time Streaming Futures Quotes,,Live Cattle Futures,8914,USD,meats,Live Cattle
+united states,,Real Time Streaming Futures Quotes,,Lean Hogs Futures,8913,USD,meats,Lean Hogs
+united states,,Real Time Streaming Futures Quotes,,Feeder Cattle Futures,961618,USD,meats,Feeder Cattle
+united kingdom,,Real Time Streaming Futures Quotes,,Brent Oil Futures,8833,USD,energy,Brent Oil
+united states,,Real Time Streaming Futures Quotes,,Crude Oil WTI Futures,8849,USD,energy,Crude Oil WTI
+united kingdom,,Real Time Streaming Futures Quotes,,London Gas Oil Futures,8861,USD,energy,London Gas Oil
+united states,,Real Time Streaming Futures Quotes,,Natural Gas Futures,8862,USD,energy,Natural Gas
+united states,,Real Time Streaming Futures Quotes,,Heating Oil Futures,8988,USD,energy,Heating Oil
+united kingdom,,Real Time Streaming Futures Quotes,,Carbon Emissions Futures,8848,EUR,energy,Carbon Emissions
+united states,,Real Time Streaming Futures Quotes,,Gasoline RBOB Futures,954867,USD,energy,Gasoline RBOB
+india,,MCX Futures Market Quotes,,Brent Oil Futures,49769,INR,energy,MCX Brent Oil
+india,,MCX Futures Market Quotes,,Crude Oil WTI Futures,49774,INR,energy,MCX Crude Oil WTI
+india,,MCX Futures Market Quotes,,Natural Gas Futures,49787,INR,energy,MCX Natural Gas
+united kingdom,,Real Time Streaming Futures Quotes,,London Wheat Futures,8912,GBP,grains,London Wheat
+united states,,Real Time Streaming Futures Quotes,,Rough Rice Futures,13916,USD,grains,Rough Rice
+united states,,Real Time Streaming Futures Quotes,,US Soybean Oil Futures,8915,USD,grains,US Soybean Oil
+united states,,Real Time Streaming Futures Quotes,,US Soybean Meal Futures,8919,USD,grains,US Soybean Meal
+united states,,Real Time Streaming Futures Quotes,,US Soybeans Futures,8916,USD,grains,US Soybeans
+united states,,Real Time Streaming Futures Quotes,,US Wheat Futures,8917,USD,grains,US Wheat
+united states,,Real Time Streaming Futures Quotes,,US Corn Futures,8918,USD,grains,US Corn
+united states,,Real Time Streaming Futures Quotes,,Oats Futures,959199,USD,grains,Oats
