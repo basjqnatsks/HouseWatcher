@@ -42,22 +42,32 @@ class Threadit:
 
 def __ThreadedFunction(WorkLoad, ThreadId):
     try:
-        yf.download(WorkLoad[0], '1900-01-01', '2025-01-01').to_csv(f'test/{WorkLoad[0]}.csv')
+        yf.download(WorkLoad[0], '1900-01-01', '2025-01-01').to_csv(f'test/yf_{WorkLoad[0]}.csv')
     except:
-        pass
+        pass 
 
 
 
 import requests
 
 headers = {
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'en-US,en;q=0.9',
-    'cache-control': 'no-cache',
-
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-}
-
+'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:136.0) Gecko/20100101 Firefox/136.0',
+'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+'Accept-Language': 'en-US,en;q=0.5',
+'Accept-Encoding': 'gzip, deflate, br, zstd',
+'DNT': '1',
+'Sec-GPC': '1',
+'Connection': 'keep-alive',
+'Upgrade-Insecure-Requests': '1',
+'Sec-Fetch-Dest': 'document',
+'Sec-Fetch-Mode': 'navigate',
+'Sec-Fetch-Site': 'same-origin',
+'Sec-Fetch-User': '?1',
+'TE': 'trailers',
+'Priority': 'u=0, i',
+'Pragma': 'no-cache',
+'Cache-Control': 'no-cache'
+    }
 response = requests.get('https://www.sec.gov/include/ticker.txt', headers=headers)
 TICKER_LIST = str(response.text)
 TICKER_LIST = TICKER_LIST.split('\n')
@@ -65,5 +75,5 @@ for x in range(len(TICKER_LIST)):
     TICKER_LIST[x] = TICKER_LIST[x].split('\t')
 print(TICKER_LIST)
 
-Threadit(__ThreadedFunction, TICKER_LIST, ThreadCount=1)
+Threadit(__ThreadedFunction, TICKER_LIST, ThreadCount=30)
 print(len(TEST))

@@ -2,4 +2,8 @@
 *.txt
 *.pdf
 temp
+combined.csv
+filtered_data.csv
+pivoted_simulator_data.csv
+Tests/test/
 __pycache__

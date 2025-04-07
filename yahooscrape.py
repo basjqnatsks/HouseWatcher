@@ -9,6 +9,7 @@ import pathlib
 from utils import calender,read
 class ScrapeYfin:
     def __init__(self) -> None:
+        
         self.Calender = calender.getCalender()
         self.Tickers = self.GetTickerList()
         self.Directory = str(pathlib.Path(__file__).parent.resolve()) + '\\temp\\'
@@ -56,10 +57,14 @@ class ScrapeYfin:
                 for y in range(len(var)):
                     var[y] = var[y].split(',')
                     if var[y] != ['']:
+                        # print('simulator', f"'{var[y][0]}',{var[y][4]},{var[y][2]},{var[y][3]},{var[y][1]},0,{var[y][5]},'YF', '{str(x[-1]).lower()}'")
+                        # self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][4]},{var[y][2]},{var[y][3]},{var[y][1]},0,{var[y][5]},'YF', '{str(Ticker).lower()}'")
                         try:
-                            self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{Ticker}'")
-                        except:
+                            self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][4]},{var[y][2]},{var[y][3]},{var[y][1]},0,{var[y][5]},'YF', '{str(Ticker).lower()}','equity'")
+                        except Exception as a:
                             pass
+                            # print(a)
+            # break
     def GetLastMarketDay(self):
         Today = datetime.datetime.today().date()# - datetime.timedelta(days=1)
         #CalList= yprices().CalDateList
@@ -92,18 +97,5 @@ class ScrapeYfin:
         for x in range(len(TICKER_LIST)):
             TICKER_LIST[x] = TICKER_LIST[x].split('\t')
         return TICKER_LIST
-    def UploadFileFromDisk(self,x):
-        var  = read.read(self.Directory+ x, '\n')
-        del var[0]
-        
-        for y in range(len(var)):
-            var[y] = var[y].split(',')
-            #print(var[y])
-            if var[y] != [''] and datetime.datetime.strptime(var[y][0], '%Y-%m-%d').date() in self.Calender:
-                #print('inserted')
-                try:
-                    self.DB.Insert('simulator', f"'{var[y][0]}',{var[y][1]},{var[y][2]},{var[y][3]},{var[y][4]},{var[y][5]},{var[y][6]},'YF', '{x.replace('.csv', '').replace('yf_', '')}'")
-                except:
-                    pass
 
 ScrapeYfin()

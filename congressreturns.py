@@ -22,7 +22,8 @@ class SimulateCongress:
                     f.write(str(too)+',')
                 f.write('\n')
 
-    def Method2(self) -> None:
+    def Method3(self) -> None:
+        f = open('out.csv', 'w')
         self.GenerateCalender()
         self.DB = sql_postgre.SQLP("house")
         QueryLsit = []
@@ -32,21 +33,23 @@ class SimulateCongress:
 select  distinct transdate
 from public.transactions
 join financialdisclosure on filingid = docid
-where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p'
+where asset not like 'PICTURE' 
+
+and transdate <= notificationdate 
+and trantype like 'p'
 order by transdate asc
 """
         for x in self.DB.Query(DatesString):
             DateList.append(x)
-
         amount = 1000
         for x in range(len(DateList)):
-
-            
             Qstring = f"""
     select  trantype,asset,transdate,financialdisclosure.lastname,financialdisclosure.statedistrict
     from public.transactions
     join financialdisclosure on filingid = docid
-    where asset not like 'PICTURE' and asset like '%[st]%' and transdate <= notificationdate and trantype like 'p' and transdate = '{DateList[x][0].strftime('%Y-%m-%d')}'
+    where asset not like 'PICTURE' 
+    and transdate <= notificationdate 
+    and trantype like 'p' and transdate = '{DateList[x][0].strftime('%Y-%m-%d')}'
     order by transdate asc
     """
             #print(Qstring)
@@ -60,28 +63,21 @@ order by transdate asc
                 except Exception as e:
                     #print(e)
                     date = datetime.date.today().strftime('%m-%d-%Y')
-                ticker = TMPARR[y][1].split('(')[1].split(')')[0]
-                buydate = TMPARR[y][2].strftime('%m-%d-%Y')
-                print(ticker)
+                print(TMPARR[y][1])
                 try:
-                    simobj = simulator.simulate(ticker,buydate,date,self.DB,self.CalDateList)
-                    print(simobj)
+                    ticker = TMPARR[y][1].split('(')[1].split(')')[0]
                 except:
                     continue
+                buydate = TMPARR[y][2].strftime('%m-%d-%Y')
+                lastname = TMPARR[y][3]
+                statedistrict = TMPARR[y][4]
                 try:
-                    avgpercentage += simobj.RT[1]
-                    avgcount += 1
+                    simobj = simulator.simulate(ticker,buydate,'3-17-2025',self.DB,self.CalDateList)
+                    f.write(f"{ticker},{buydate},{str(simobj[1])},{'3-17-2025'},{lastname},{statedistrict}\n")
+
                 except:
                     pass
-            if avgcount > 0:
-                amount *= round(avgpercentage / avgcount, 9)
-                print(amount)
-                print(DateList[x][0].strftime('%Y-%m-%d') + ': ' + str(amount))
-                #print(round(avgpercentage / avgcount, 9))
-                #print(simobj.RT)
-            
-                #print(simulator.simulate(TMPARR[y][1].split('(')[1].split(')')[0] , TMPARR[y][2].strftime('%m-%d-%Y'), date ,1000, self.DB, self.CalDateList).RT[1])
-                #break
+
         return
 
 
@@ -202,4 +198,4 @@ order by transdate asc
 
 
 
-SimulateCongress().Method2()
+SimulateCongress().Method3()
